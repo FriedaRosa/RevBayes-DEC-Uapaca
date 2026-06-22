@@ -13,6 +13,7 @@ toc: true
 # RevBayes-DEC-Uapaca
 
 This repository contains the *RevBayes* scripts used to perform the Dispersal-Extinction-Cladogenesis (DEC) analyses on the *Uapaca* angiosperm3535-dataset.
+To set up RevBayes see [00_Configure_Project_and_RevBayes.html](https://rawcdn.githack.com/FriedaRosa/RevBayes-DEC-Uapaca/aa4309eb62f3c4882015774bb879518bd8b45e1a/00_Configure_Project_and_RevBayes.html).
 
 The folder is organized into the following subfolders: `content` and `scripts`
 
@@ -82,7 +83,15 @@ fs::dir_tree(
 ```
 
 
-## The resulting ancestral range reconstruction on the nuclear tree:
+## The resulting ancestral range reconstruction on the nuclear tree (DEC):
 ![Nuclear tree](figures/simple_dec_acr.png)
-## The resulting ancestral range reconstruction on the plastome tree:
+
+
+## The resulting ancestral range reconstruction on the nuclear tree (DEC+J+F):
+![Nuclear tree](figures/DECJ_nuclear_asr.png)
+
+## The resulting ancestral range reconstruction on the plastome tree (DEC):
 ![Plastome tree](figures/plastome_simple_acr.png)
+
+## The resulting ancestral range reconstruction on the plastome tree (DEC+J+F):
+![Plastome tree](figures/DECJ_plastome_asr.png)

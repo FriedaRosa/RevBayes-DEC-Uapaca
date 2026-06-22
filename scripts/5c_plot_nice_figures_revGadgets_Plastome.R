@@ -25,7 +25,7 @@ plotTree(tree_rooted)
 
 labs <- c("1" = "Afr", "2" = "Mdg", "3" = "both", "0" = "none")
 
-ancstates <- processAncStates(tree_rooted, state_labels = labs)
+ancstates <- processAncStates(tree_fn, state_labels = labs)
 
 
 pp <- plotAncStatesPie(

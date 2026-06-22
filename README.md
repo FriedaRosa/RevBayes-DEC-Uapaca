@@ -3,14 +3,21 @@ Friederike Wölke
 2026-06-20
 
 - [RevBayes-DEC-Uapaca](#revbayes-dec-uapaca)
-  - [The resulting ancestral range reconstruction on the nuclear
-    tree:](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree)
+  - [The resulting ancestral range reconstruction on the nuclear tree
+    (DEC):](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree-dec)
+  - [The resulting ancestral range reconstruction on the nuclear tree
+    (DEC+J+F):](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree-decjf)
+  - [The resulting ancestral range reconstruction on the plastome tree
+    (DEC):](#the-resulting-ancestral-range-reconstruction-on-the-plastome-tree-dec)
+  - [The resulting ancestral range reconstruction on the plastome tree
+    (DEC+J+F):](#the-resulting-ancestral-range-reconstruction-on-the-plastome-tree-decjf)
 
 # RevBayes-DEC-Uapaca
 
 This repository contains the *RevBayes* scripts used to perform the
 Dispersal-Extinction-Cladogenesis (DEC) analyses on the *Uapaca*
-angiosperm3535-dataset.
+angiosperm3535-dataset. To set up RevBayes see
+[00_Configure_Project_and_RevBayes.html](https://rawcdn.githack.com/FriedaRosa/RevBayes-DEC-Uapaca/aa4309eb62f3c4882015774bb879518bd8b45e1a/00_Configure_Project_and_RevBayes.html).
 
 The folder is organized into the following subfolders: `content` and
 `scripts`
@@ -97,7 +104,18 @@ in the phylogenomics pipelines:
     ├── uapaca_gene_8.nex
     └── uapaca_gene_9.nex
 
-## The resulting ancestral range reconstruction on the nuclear tree:
+## The resulting ancestral range reconstruction on the nuclear tree (DEC):
 
-![Nuclear tree](figures/simple_dec_acr.png) ![Plastome
-tree](figures/plastome_simple_acr.png)
+![Nuclear tree](figures/simple_dec_acr.png)
+
+## The resulting ancestral range reconstruction on the nuclear tree (DEC+J+F):
+
+![Nuclear tree](figures/DECJ_nuclear_asr.png)
+
+## The resulting ancestral range reconstruction on the plastome tree (DEC):
+
+![Plastome tree](figures/plastome_simple_acr.png)
+
+## The resulting ancestral range reconstruction on the plastome tree (DEC+J+F):
+
+![Plastome tree](figures/DECJ_plastome_asr.png)
