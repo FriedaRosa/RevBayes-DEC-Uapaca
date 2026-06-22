@@ -2,7 +2,9 @@
 title: "Project README"
 author: Friederike Wölke
 date: 2026-06-20
-format: html
+format: gfm
+execute:
+  echo: false
 embed-resources: true
 standalone: true
 toc: true
@@ -24,38 +26,55 @@ Where `content` contains the data (input/output) for the RevBayes analyses, incl
 
 1)  **Nuclear**: <https://github.com/FriedaRosa/HybSuite_pipeline_2026>
 
-    ```{r}
-    #| echo: false
-    suppressPackageStartupMessages(library(ape))
-    suppressPackageStartupMessages(library(dplyr))
+![](figures/nuclear_tree.png){width="681"}
 
-    read.tree("content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre") %>% ladderize() %>% 
-    plot()
-    ```
+```{r}
+#| echo: false
+#| eval: false
+suppressPackageStartupMessages(library(ape))
+suppressPackageStartupMessages(library(dplyr))
+
+png(filename="figures/nuclear_tree.png", width=800, height=600)
+read.tree(
+  "content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
+) %>%
+  ladderize() %>%
+  plot()
+dev.off()
+```
 
 2)  **Plastome**: <https://github.com/FriedaRosa/Plastome_Phylogenomisc_2026>
 
-    ```{r}
-    #| echo: false
-    library(ape)
-    library(dplyr)
-    read.tree("content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre") %>% ladderize() %>% 
-    root(outgroup = "Spondianthus_preussii", resolve.root = TRUE) %>%
-    plot()
-    ```
+    ![](figures/plastome.png)
+
+```{r}
+#| echo: false
+#| eval: false
+library(ape)
+library(dplyr)
+
+png(filename = "figures/plastome.png")
+read.tree("content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre") %>%
+  ladderize() %>%
+  root(outgroup = "Spondianthus_preussii", resolve.root = TRUE) %>%
+  plot()
+dev.off()
+```
 
 3)  it also includes the **Distribution** **Ranges**: `Uapaca_range.nex` which was written by hand with the following format:
 
 ```{r}
 #| echo: false
-
 r <- readLines("./content/data/input/Uapaca_range.nex")
 cat(paste(r, collapse = "\n"))
 ```
 
 4.  and some high-coverage **molecular sequence** data to estimate the rate of sequence evolution for molecular clock models
 
-    ```{r}
-    #| echo: false
-    fs::dir_tree("content/data/input/molecular_data/", regexp = "(?:uapaca|plastome).*\\.nex$")
-    ```
+```{r}
+#| echo: false
+fs::dir_tree(
+  "content/data/input/molecular_data/",
+  regexp = "(?:uapaca|plastome).*\\.nex$"
+)
+```
