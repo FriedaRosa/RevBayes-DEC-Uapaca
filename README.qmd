@@ -34,7 +34,7 @@ Where `content` contains the data (input/output) for the RevBayes analyses, incl
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(dplyr))
 
-png(filename="figures/nuclear_tree.png", width=800, height=600)
+png(filename = "figures/nuclear_tree.png", width = 800, height = 600)
 read.tree(
   "content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
 ) %>%
@@ -54,7 +54,9 @@ library(ape)
 library(dplyr)
 
 png(filename = "figures/plastome.png")
-read.tree("content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre") %>%
+read.tree(
+  "content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre"
+) %>%
   ladderize() %>%
   root(outgroup = "Spondianthus_preussii", resolve.root = TRUE) %>%
   plot()
@@ -78,3 +80,7 @@ fs::dir_tree(
   regexp = "(?:uapaca|plastome).*\\.nex$"
 )
 ```
+
+
+## The resulting ancestral range reconstruction on the nuclear tree:
+![](figures/simple_dec_acr.png)

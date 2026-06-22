@@ -3,6 +3,8 @@ Friederike Wölke
 2026-06-20
 
 - [RevBayes-DEC-Uapaca](#revbayes-dec-uapaca)
+  - [The resulting ancestral range reconstruction on the nuclear
+    tree:](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree)
 
 # RevBayes-DEC-Uapaca
 
@@ -94,3 +96,7 @@ in the phylogenomics pipelines:
     ├── uapaca_gene_7.nex
     ├── uapaca_gene_8.nex
     └── uapaca_gene_9.nex
+
+## The resulting ancestral range reconstruction on the nuclear tree:
+
+![](figures/simple_dec_acr.png)
