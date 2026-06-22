@@ -41,3 +41,4 @@ pp <- plotAncStatesPie(
 )
 
 pp
+ggsave(pp, filename = "figures/simple_dec_acr.png")

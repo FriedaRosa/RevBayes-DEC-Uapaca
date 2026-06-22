@@ -1,0 +1,21 @@
+T = readTrees(file="./content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre")[1]
+
+burnin=0.2
+n_time_slices = 500
+
+
+anc_states = readAncestralStateTrace("./content/data/output/plastome_simple/plastome.stoch.log")
+
+
+
+summarizeCharacterMaps(anc_states, T, file="./content/data/output/plastome_simple/events.csv", burnin=0.1)
+
+
+char_map_tree = characterMapTree(tree=T,
+                 ancestral_state_trace_vector=anc_states,
+                 character_file="./content/data/output/plastome_simple/simple_marginal_character.tree",
+                 posterior_file="./content/data/output/plastome_simple/simple_marginal_posterior.tree",
+                 burnin=burnin,
+                 num_time_slices=n_time_slices)
+
+

@@ -83,4 +83,6 @@ fs::dir_tree(
 
 
 ## The resulting ancestral range reconstruction on the nuclear tree:
-![](figures/simple_dec_acr.png)
+![Nuclear tree](figures/simple_dec_acr.png)
+## The resulting ancestral range reconstruction on the plastome tree:
+![Plastome tree](figures/plastome_simple_acr.png)

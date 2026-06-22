@@ -99,4 +99,5 @@ in the phylogenomics pipelines:
 
 ## The resulting ancestral range reconstruction on the nuclear tree:
 
-![](figures/simple_dec_acr.png)
+![Nuclear tree](figures/simple_dec_acr.png) ![Plastome
+tree](figures/plastome_simple_acr.png)
