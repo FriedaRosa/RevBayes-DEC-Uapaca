@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.positai
+scripts/archive/*
+content/revbayes* 
+*.nex
+*.fasta
+history.txt

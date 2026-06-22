@@ -1,0 +1,357 @@
+---
+title: "Configure project and RevBayes"
+author: Friederike Wölke
+date: 2026-06-20
+format: html
+embed-resources: true
+standalone: true
+toc: true
+
+---
+General setup for RevBayes via Positron Interface and R.
+
+
+- I use positron because it was created for R but is based on VSCode and thus allows me to use bash, python and R in the same workspace.
+- I use bash as terminal language in a linux subsytem to prepare the data (and move it from my linux subsystem to windows where this workspace is located)
+- I use bash also to start RevBayes and source .Rev scripts.
+
+
+# I. Create project folder
+
+```{r}
+#| eval: false
+# Set up workspace
+dir.create("RevBayes-DEC-Uapaca", showWarnings = FALSE)
+setwd("RevBayes-DEC-Uapaca")
+
+# create content folder
+dir.create("content", showWarnings = FALSE)
+
+# create scripts folder
+dir.create("scripts", showWarnings = FALSE)
+```
+
+# II. Set up R environment
+
+```{r}
+#| eval: false
+packages_to_load <- c(
+  "renv",
+  "here",
+  "ape",
+  "dplyr",
+  "RevGadgets",
+  "magick",
+  "ggplot2",
+  "BiocManager"
+)
+
+lapply(packages_to_load, function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+  }
+})
+
+BiocManager::install("ggtree")
+
+# activate renv workspace
+renv::activate()
+
+# renv::status()
+# renv::install()
+# renv::snapshot()
+```
+
+```{r}
+# vector with packages
+load_pckgs <-
+  c("here", "ape", "dplyr")
+
+# activate them
+lapply(
+  load_pckgs,
+  library,
+  character.only = TRUE
+)
+```
+
+
+# III. Prepare input data for RevBayes
+## a) nuclear tree
+```{r}
+#| eval: false
+# the tree (output from nuclear phylogenomics pipeline)
+tr_nuc <-
+  read.tree(
+    here(
+      "content/data/input/phylogenetic_tree/wASTRAL_HybSuite_HRS.rr.tre"
+    )
+  ) %>%
+  ladderize()
+
+plot(tr_nuc)
+
+# checks on the tree:
+is.rooted(tr_nuc) # yes
+is.binary(tr_nuc) # yes
+is.ultrametric(tr_nuc) # no
+
+summary(tr_nuc$edge.length)
+tr_nuc$edge.length[tr_nuc$edge.length <= 1e-10]
+
+
+# create ultrametic starting tree:
+tr_nuc <- multi2di(tr_nuc)
+tr_nuc$edge.length[is.na(tr_nuc$edge.length) | tr_nuc$edge.length <= 0] <- 1e-6
+
+tr_nuc_ultra <- chronos(tr_nuc)
+tr_nuc_ultra <- compute.brlen(tr_nuc_ultra, method = "Grafen")
+
+write.tree(
+  tr_nuc_ultra,
+  here(
+    "content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
+  )
+)
+```
+
+## b) plastome tree
+```{r}
+#| eval: false
+tr_plastome <-
+  read.tree(
+    here(
+      "content/data/input/phylogenetic_tree/plastome.fasta.concat.treefile"
+    )
+  ) %>%
+  root(outgroup = "Spondianthus_preussii", resolve.root = TRUE) %>%
+  ladderize()
+
+
+plot(tr_plastome)
+
+
+# checks on the tree:
+is.rooted(tr_plastome) # yes
+is.binary(tr_plastome) # yes
+is.ultrametric(tr_plastome) # no
+
+summary(tr_plastome$edge.length)
+tr_plastome$edge.length[tr_plastome$edge.length <= 1e-10]
+
+
+# create ultrametic starting tree:
+tr_plastome <- multi2di(tr_plastome)
+tr_plastome$edge.length[
+  is.na(tr_plastome$edge.length) | tr_plastome$edge.length <= 0
+] <- 1e-6
+
+tr_plastome_ultra <- chronos(tr_plastome)
+tr_plastome_ultra <- compute.brlen(tr_plastome_ultra, method = "Grafen")
+
+write.tree(
+  tr_plastome_ultra,
+  here(
+    "content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre"
+  )
+)
+```
+
+# IV. Convert alignment fastas into nexus format for RevBayes
+
+The alignment fastas were copied from the original HybSuite folder in my Linux subsystem into the data/molecular_data folder. I chose the 10 genes with the most taxa represented in the alignment. 
+
+For reference (only), here is the script I used to copy files from Linux to Windows.
+
+```{bash, include=FALSE}
+#| eval: false
+#!/bin/bash
+
+target_mol='/mnt/c/Users/frwo0304/Documents/GitHub/RevBayes-DEC-Uapaca/content/data/input/molecular_data'
+
+source_mol='/home/frieda/HybSeq_pipeline_2026/data/output/06-Final_alignments/HRS'
+source_plast='/home/frieda/Plastome_Phylogenomisc_2026/data/plastome_seq/plastome.fasta.concat.fasta'
+
+mkdir -p $target_mol
+
+cp \
+"$source_mol/6295.aln.trimmed.fasta" \
+"$source_mol/7029.aln.trimmed.fasta" \
+"$source_mol/5594.aln.trimmed.fasta" \
+"$source_mol/5620.aln.trimmed.fasta" \
+"$source_mol/5922.aln.trimmed.fasta" \
+"$source_mol/6016.aln.trimmed.fasta" \
+"$source_mol/6620.aln.trimmed.fasta" \
+"$source_mol/4527.aln.trimmed.fasta" \
+"$source_mol/5454.aln.trimmed.fasta" \
+"$source_plast/plastome_concat.fasta" \
+"$target_mol/"
+
+# check if they are there:
+ls -1 "$target_mol"
+
+
+# target folder:
+target_tre='/mnt/c/Users/frwo0304/Documents/GitHub/RevBayes-DEC-Uapaca/content/data/input/phylogenetic_tree'
+mkdir -p $target_tre
+
+
+# source nuclear tree:
+source_tre_nuc='/home/frieda/HybSeq_pipeline_2026/data/output/08-Coalescent_analysis/HRS/03-Species_tree/wASTRAL/wASTRAL_HybSuite_HRS.rr.tre'
+
+# source plastome tree:
+source_tre_plastome='/home/frieda/Plastome_Phylogenomisc_2026/data/plastome_seq/plastome.fasta.concat.treefile'
+
+# copy nuclear tree
+cp \
+"$source_tre_nuc" \
+"$target_tre/"
+
+# copy plastome tree
+cp \
+"$source_tre_plastome" \
+"$target_tre/"
+
+
+# check if they are there:
+ls -1 "$target_tre"
+
+```
+
+Reformat the alignments to the .nexus format needed in RevBayes from .fasta:
+
+```{r}
+#| eval: false
+fasta_files <-
+  list.files(
+    "content/data/input/molecular_data",
+    pattern = "\\.fasta$",
+    full.names = TRUE
+  )
+out_files <-
+  sub("\\.fasta$", ".nex", fasta_files)
+
+for (i in seq_along(fasta_files)) {
+  fasta_file <-
+    fasta_files[i]
+
+  out_file <-
+    out_files[i]
+
+  aln <-
+    read.dna(
+      fasta_file,
+      format = "fasta",
+      as.character = TRUE
+    )
+
+  ntax <-
+    nrow(aln)
+
+  nchar <-
+    ncol(aln)
+
+  taxa <-
+    rownames(aln)
+
+  seqs <-
+    apply(
+      aln,
+      1,
+      paste0,
+      collapse = ""
+    )
+
+  name_width <-
+    max(nchar(taxa)) + 12
+
+  # Write new file:
+  con <-
+    file(out_file, open = "w")
+
+  # Write header for each file:
+  writeLines("#NEXUS", con)
+  writeLines("begin data;", con)
+  writeLines(paste0("dimensions ntax=", ntax, " nchar=", nchar, ";"), con)
+  writeLines("format datatype=dna missing=? gap=-;", con)
+  writeLines("matrix", con)
+
+  for (i in seq_along(taxa)) {
+    # Create line for each taxon with formatted name and sequence
+    line <-
+      paste0(
+        format(taxa[i], width = name_width, justify = "left"),
+        tolower(seqs[i])
+      )
+    writeLines(line, con)
+  }
+
+  writeLines(";", con)
+  writeLines("end;", con)
+
+  close(con)
+}
+```
+
+```{bash}
+#| eval: false
+
+# rename the files
+i=1
+
+for f in *.aln.trimmed.nex; do
+    mv "$f" "uapaca_gene_${i}.nex"
+    ((i++))
+done
+
+```
+
+
+# V. Download and set up RevBayes in project folder
+
+Download RevBayes v1.3.2 for Linux directly from the GitHub releases page, and extract it to the /content folder.
+
+```{r}
+#| eval: false
+url <- "https://github.com/revbayes/revbayes/releases/download/v1.3.2/revbayes-v1.3.2-linux64.tar.gz"
+dest <- "content/RevBayes_Linux.tgz"
+
+# 2. Download directly to the /content folder
+download.file(url, destfile = dest, method = "libcurl")
+
+# 3. Extract it using R's internal tar tool
+utils::untar(dest, exdir = "content/")
+```
+
+
+## Starting RevBayes:
+
+Start RevBayes in the terminal by starting the rb executable from the extracted folder.
+
+```{bash}
+#| eval: false
+
+# to start RevBayes from the terminal, run this in bash:
+./content/revbayes-v1.3.2/bin/rb
+
+# run this in RevBayes terminal:
+setwd("/mnt/c/Users/frwo0304/Documents/GitHub/RevBayes-DEC-Uapaca/")
+
+# to run scripts from terminal, do: (for example)
+source("./scripts/0_Setup_MCMC.Rev")
+```
+
+# References:
+
+```{r}
+sessionInfo()
+
+citation("here")
+citation("ape")
+citation("dplyr")
+citation("ggtree")
+citation("ggplot2")
+citation("RevGadgets")
+citation("magick")
+citation("BiocManager")
+```

@@ -1,0 +1,108 @@
+range_fn = "./content/data/input/Uapaca_range.nex"
+tree_fn  = "./content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
+out_fn   = "./content/data/output/simple_dec/test_"
+
+dat_range_01 = readDiscreteCharacterData(range_fn)
+dat_range_n = formatDiscreteCharacterData(dat_range_01, "DEC")
+n_areas  = dat_range_01.nchar()
+
+state_desc = dat_range_n.getStateDescriptions()
+#  [ 00, 10, 01, 11 ]
+# 00 = no range; 10 = only Afr, 01 = only Mdg, 11 = both
+
+state_desc_str = "state,range\n"
+for (i in 1:state_desc.size())
+{
+    state_desc_str += (i-1) + "," + state_desc[i] + "\n"
+}
+write(state_desc_str, file=out_fn+".state_labels.txt")
+
+
+
+# set up moves
+moves = VectorMoves()
+monitors = VectorMonitors()
+n_gen = 20000
+
+# read tree
+tree <- readTrees(tree_fn)[1]
+
+# set biogeog. rate parameter priors
+log10_rate_bg ~ dnUniform(-4,2)
+log10_rate_bg.setValue(-2)
+moves.append( mvScale(log10_rate_bg, weight=4) )
+rate_bg := 10^log10_rate_bg
+
+
+# 1. Dispersal rate
+dispersal_rate <- 1.0
+
+for (i in 1:n_areas) {
+    for (j in 1:n_areas) {
+        dr[i][j] <- dispersal_rate
+    }
+}
+
+# 2. Extirpation rate
+# Estimate extirpation rate
+log_sd <- 0.5
+log_mean <- ln(1) - 0.5*log_sd^2
+extirpation_rate ~ dnLognormal(mean=log_mean, sd=log_sd)
+moves.append( mvScale(extirpation_rate, weight=2) )
+
+for (i in 1:n_areas) {
+    for (j in 1:n_areas) {
+        er[i][j] <- 0.0       
+    }
+    er[i][i] := extirpation_rate
+}
+
+Q_DEC := fnDECRateMatrix(dispersalRates=dr,
+                         extirpationRates=er)
+
+
+# 3. Cladogenetic component
+# s = sympatry, a = allopatry
+clado_event_types <- [ "s", "a"]
+clado_event_probs <- simplex(1,1)
+
+P_DEC := fnDECCladoProbs(eventProbs=clado_event_probs,
+                         eventTypes=clado_event_types,
+                         numCharacters=n_areas)
+
+
+# 4. Full model:
+m_bg ~ dnPhyloCTMCClado(tree=tree,
+                           Q=Q_DEC,
+                           cladoProbs=P_DEC,
+                           branchRates=rate_bg,
+                           type="NaturalNumbers",
+                           nSites=1)
+
+
+# 5. Clamp data
+m_bg.clamp(dat_range_n)
+
+# 6. Define monitors
+monitors.append( mnScreen(printgen=100, rate_bg) )
+monitors.append( mnModel(file=out_fn+".model.log", printgen=1) )
+monitors.append( mnFile(tree, filename=out_fn+".tre", printgen=1) )
+
+monitors.append( mnJointConditionalAncestralState(tree=tree,
+                                                  ctmc=m_bg,
+                                                  type="NaturalNumbers",
+                                                  withTips=true,
+                                                  withStartStates=true,
+                                                  filename=out_fn+".states.log",
+                                                  printgen=1) )
+
+
+monitors.append( mnStochasticCharacterMap(ctmc=m_bg,
+                                          filename=out_fn+".stoch.log",
+                                          printgen=10) )
+
+
+# Run MCMC
+mymodel = model(m_bg)
+mymcmc = mcmc(mymodel, moves, monitors)
+mymcmc.run(n_gen)
