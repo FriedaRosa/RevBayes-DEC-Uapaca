@@ -2,7 +2,7 @@ library(ape)
 library(dplyr)
 
 
-tree_file <- "./content/data/output/DECJ_nuc/DECJ_.ase.tre"
+tree_file <- "./data/output/DECJ_nuc/DECJ_.ase.tre"
 tr <- read.nexus(tree_file)
 
 txt <- paste(readLines(tree_file), collapse = " ")

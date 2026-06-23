@@ -1,6 +1,6 @@
-range_fn = "./content/data/input/Uapaca_range_plastome.nex"
-tree_fn  = "./content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre"
-out_fn   = "./content/data/output/plastome_simple/plastome"
+range_fn = "./data/input/Uapaca_range_plastome.nex"
+tree_fn  = "./data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre"
+out_fn   = "./data/output/plastome_simple/plastome"
 
 dat_range_01 = readDiscreteCharacterData(range_fn)
 dat_range_n = formatDiscreteCharacterData(dat_range_01, "DEC")

@@ -1,4 +1,4 @@
-fp <- "./content/data/output/plastome_simple/"
+fp <- "./data/output/plastome_simple/"
 
 
 plot_fn <- paste(fp, "plastome.range.pdf", sep = "")

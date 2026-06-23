@@ -1,6 +1,6 @@
 install.packages("coda")
 library(coda)
-trace <- read.table("content/data/output/simple_dec/simple_dec.model.log", header = TRUE)
+trace <- read.table("data/output/simple_dec/simple_dec.model.log", header = TRUE)
 
 
 m <- mcmc(trace)

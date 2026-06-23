@@ -1,6 +1,6 @@
-range_fn = "./content/data/input/Uapaca_range.nex"
-tree_fn  = "./content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
-out_fn   = "./content/data/output/DECJ_nuc/DECJ_"
+range_fn = "./data/input/Uapaca_range.nex"
+tree_fn  = "./data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
+out_fn   = "./data/output/DECJ_nuc/DECJ_"
 
 dat_range_01 = readDiscreteCharacterData(range_fn)
 dat_range_n = formatDiscreteCharacterData(dat_range_01, "DEC")

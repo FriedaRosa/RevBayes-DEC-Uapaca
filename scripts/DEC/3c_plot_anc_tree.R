@@ -2,8 +2,8 @@ library(ape)
 library(dplyr)
 
 
-#tree_file <- "./content/data/output/simple_dec/simple_dec.ase.tre"
-tree_file <- "./content/data/output/simple_dec/test_.ase.tre"
+#tree_file <- "./data/output/simple_dec/simple_dec.ase.tre"
+tree_file <- "./data/output/simple_dec/test_.ase.tre"
 tr <- read.nexus(tree_file)
 
 txt <- paste(readLines(tree_file), collapse = " ")

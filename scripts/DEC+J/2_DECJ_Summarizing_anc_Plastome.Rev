@@ -1,5 +1,5 @@
 
-out_str = "./content/data/output/DECJ_plst/DECJ_"
+out_str = "./data/output/DECJ_plst/DECJ_"
 out_state_fn = out_str + ".states.log"
 out_tree_fn = out_str + ".tre"
 out_mcc_fn = out_str + ".mcc.tre"
