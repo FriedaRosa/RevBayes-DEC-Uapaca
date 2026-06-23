@@ -6,7 +6,7 @@
 scripts/archive/*
 content/revbayes* 
 *.nex
-!/content/data/input/Uapaca_range.nex
-!/content/data/input/Uapaca_range_plastome.nex
+!/data/input/Uapaca_range.nex
+!/data/input/Uapaca_range_plastome.nex
 *.fasta
 history.txt
