@@ -1,0 +1,55 @@
+#################################################################################################
+#  				Master file: DATING ANALYSIS USING MCMC ON UAPACA GENOMIC SEQUENCES 			#
+#################################################################################################
+
+
+
+# I. 	Read sequence data and create some variables for later:
+plstm <- readDiscreteCharacterData("data/input/molecular_data/plastome_concat.nex")
+
+n_taxa <- plstm.size()				# Number of taxa in sequence matrix
+taxa <- plstm.taxa()					# Taxon names 
+
+
+
+# II. 	Create workspace variables containing <moves> and <monitors> for the MCMCM
+moves    = VectorMoves()			
+monitors = VectorMonitors()
+
+
+
+# III. 	Source the model scripts
+# a)	BD tree prior
+source("scripts/clock-model/1_tree_model-BirthDeath.Rev") 		
+# b)	Global clock model
+source("scripts/clock-model/2_clock_model-global.Rev") 	
+# c)	Molecular substitution model (GTR+G)
+source("scripts/clock-model/3_sub_model-GTRG.Rev") 		
+
+
+
+# IV. 	Create workspace <model> variable
+mymodel = model(sf)	
+
+
+# V. 	Indicate output file names for <monitors>
+monitors.append( mnModel(filename="output/clock_model_plstm/plstm_global.log", printgen=10) )
+monitors.append( mnFile(filename="output/clock_model_plstm/plstm_global.trees", printgen=10, timetree) )
+monitors.append( mnScreen(printgen=10, extant_mrca, diversification) )
+
+
+
+# VI. 	Define MCMC
+mymcmc = mcmc(mymodel, monitors, moves, nruns=2, combine="mixed")
+mymcmc.run(generations=20000, tuningInterval=200)
+
+
+
+# VII. 	Extract summary tree and generate MCC tree from it
+trace = readTreeTrace("data/output/clock_model_plstm/plstm_global.trees")
+mccTree(trace, file="data/output/clock_model_plstm/plstm_global.mcc.tre" )
+
+
+
+# VIII.	Close RevBayes
+q()
