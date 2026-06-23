@@ -33,8 +33,8 @@ mymodel = model(sf)
 
 
 # V. 	Indicate output file names for <monitors>
-monitors.append( mnModel(filename="output/clock_model_plstm/plstm_global.log", printgen=10) )
-monitors.append( mnFile(filename="output/clock_model_plstm/plstm_global.trees", printgen=10, timetree) )
+monitors.append( mnModel(filename="data/output/clock_model_plstm/plstm_global.log", printgen=10) )
+monitors.append( mnFile(filename="data/output/clock_model_plstm/plstm_global.trees", printgen=10, timetree) )
 monitors.append( mnScreen(printgen=10, extant_mrca, diversification) )
 
 
