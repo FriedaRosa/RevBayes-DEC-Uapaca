@@ -1,4 +1,4 @@
-fp <- "./content/data/output/DECJ_plst/"
+fp <- "./data/output/DECJ_plst/"
 
 
 plot_fn <- paste(fp, "DECJ_.range.pdf", sep = "")

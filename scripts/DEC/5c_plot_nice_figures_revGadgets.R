@@ -1,4 +1,4 @@
-fp <- "./content/data/output/simple_dec/"
+fp <- "./data/output/simple_dec/"
 #plot_fn <- paste(fp, "simple_dec.range.pdf", sep = "")
 #tree_fn <- paste(fp, "simple_dec.ase.tre", sep = "")
 #label_fn <- paste(fp, "simple_dec.state_labels.txt", sep = "")

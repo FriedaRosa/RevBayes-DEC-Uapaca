@@ -1,7 +1,7 @@
 #install.packages("coda")
 library(coda)
 trace <- read.table(
-  "content/data/output/DECJ_plst/DECJ_.model.log",
+  "data/output/DECJ_plst/DECJ_.model.log",
   header = TRUE
 )
 

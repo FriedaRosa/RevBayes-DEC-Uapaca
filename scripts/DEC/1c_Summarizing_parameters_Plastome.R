@@ -1,7 +1,7 @@
 install.packages("coda")
 library(coda)
 trace <- read.table(
-  "content/data/output/plastome_simple/plastome.model.log",
+  "data/output/plastome_simple/plastome.model.log",
   header = TRUE
 )
 

@@ -3,7 +3,7 @@ library(dplyr)
 
 
 
-tree_file <- "./content/data/output/plastome_simple/plastome.ase.tre"
+tree_file <- "./data/output/plastome_simple/plastome.ase.tre"
 tr <- read.nexus(tree_file)
 
 txt <- paste(readLines(tree_file), collapse = " ")

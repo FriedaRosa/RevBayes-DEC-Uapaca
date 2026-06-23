@@ -1,10 +1,9 @@
 #install.packages("coda")
 library(coda)
-trace <- read.table("content/data/output/DECJ_nuc/DECJ_.model.log", header = TRUE)
+trace <- read.table("data/output/DECJ_nuc/DECJ_.model.log", header = TRUE)
 
 
 m <- mcmc(trace)
-
 
 
 burnin_fraction <- 0.25
@@ -13,7 +12,6 @@ m_postburn <- window(m, start = start_iter)
 
 
 plot(m_postburn)
-
 
 
 mean_range_bg <- mean(m_postburn[, "rate_bg"])
@@ -29,7 +27,6 @@ ci_extirpation_rate <- quantile(
 postburn <- as.data.frame(m_postburn)
 plot(density(postburn$rate_bg), main = "rate_bg")
 plot(density(postburn$extirpation_rate), main = "extirpation_rate")
-
 
 
 plot(

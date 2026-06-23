@@ -1,4 +1,4 @@
-fp <- "./content/data/output/DECJ_nuc/"
+fp <- "./data/output/DECJ_nuc/"
 
 plot_fn <- paste(fp, "DECJ_.range.pdf", sep = "")
 tree_fn <- paste(fp, "DECJ_.ase.tre", sep = "")
