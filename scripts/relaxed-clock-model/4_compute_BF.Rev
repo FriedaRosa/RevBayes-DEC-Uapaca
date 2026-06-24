@@ -14,3 +14,4 @@ BF_01 <- mLnL_m0 - mLnL_m1
 
 "BF_01"
 BF_01
+"if < -1 model M1 is preferred"

@@ -1,5 +1,15 @@
 # MCMC  Analysis File #
 
+T <- readTrees("data/input/phylogenetic_tree/uapaca_start_ultrametric.tre")[1]
+n_taxa <- T.ntips()             # Number of Taxa at the tips
+taxa <- T.taxa()                # Names of Taxa at the tips
+
+# 0.   Initialize moves and monitors
+
+moves    = VectorMoves()
+monitors = VectorMonitors()
+
+
 
 
 # I.    Load sequence alignments
@@ -29,7 +39,7 @@ gene9.addMissingTaxa( taxa )
 D = concatenate(gene1, gene2, gene3, gene4, gene5, gene6, gene7, gene8, gene9)
 
 # c)    initialize variables for later
-n_sites <- D.nchar(1)
+n_sites <- D.nchar()
 mi = 1
 
 
@@ -40,7 +50,7 @@ source("scripts/relaxed-clock-model/1b_tree_model-BirthDeath_lnRootAge.Rev")
 
 # III. Source clock model (the best one - chose one of the two below)
 source("scripts/relaxed-clock-model/2c_clock_model-UCLN.Rev") 	
-source("scripts/relaxed-clock-model/2b_clock_model-global.Rev") 	
+#source("scripts/relaxed-clock-model/2b_clock_model-global.Rev") 	
 
 # IV. Workspace model wrapper:
 mymodel = model(er)
@@ -49,7 +59,7 @@ mymodel = model(er)
 # V. MCMC monitors
 monitors.append(mnModel(filename="data/output/relaxed_clock_nuc/TimetTree_uapaca_mcmc.log", printgen=10))
 monitors.append(mnFile(filename="data/output/relaxed_clock_nuc/TimeTree_uapaca_mcmc.trees", printgen=10, timetree))
-monitors.append(mnScreen(printgen=10, root_time, tmrca_uapaca))
+monitors.append(mnScreen(printgen=10, root_time, age_uapaca))
 
 
 # VI. Setting up MCMC
