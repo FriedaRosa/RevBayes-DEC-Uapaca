@@ -59,12 +59,12 @@ mymodel = model(er)
 # V. MCMC monitors
 monitors.append(mnModel(filename="data/output/relaxed_clock_nuc/TimetTree_uapaca_mcmc.log", printgen=10))
 monitors.append(mnFile(filename="data/output/relaxed_clock_nuc/TimeTree_uapaca_mcmc.trees", printgen=10, timetree))
-monitors.append(mnScreen(printgen=10, root_time, age_uapaca,  age_mada))
+monitors.append(mnScreen(printgen=10, root_time, age_uapaca))
 
 # VI. Setting up MCMC
 mymcmc = mcmc(mymodel, monitors, moves)
 mymcmc.burnin(generations=2000,tuningInterval=100)
-mymcmc.run(generations=10000)
+mymcmc.run(generations=20000)
 
 # evaluate the acceptance rate of the porposal mechanisms
 mymcmc.operatorSummary()
