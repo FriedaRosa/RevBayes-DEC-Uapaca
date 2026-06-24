@@ -12,3 +12,4 @@ content/revbayes*
 history.txt
 *.log
 *.out
+data/output/ancestral-areas-DEC/DEC*_nuc_stone_*.tre

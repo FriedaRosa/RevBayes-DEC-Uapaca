@@ -75,28 +75,3 @@ q()
 
 
 
-
-
-
-
-
-##### OUTCOMMENTED STUFF NOT SURE IF NEEDED #######
-# V. 	Indicate output file names for <monitors>
-#monitors.append( mnModel(filename="data/output/relaxed_clock_nuc/nuc_global.log", printgen=10) )
-#monitors.append( mnFile(filename="data/output/relaxed_clock_nuc/nuc_global.trees", printgen=10, timetree) )
-#monitors.append( mnScreen(printgen=10, extant_mrca, diversification) )
-
-
-
-# VI. 	Define MCMC
-#mymcmc = mcmc(mymodel, monitors, moves, nruns=2, combine="mixed")
-#mymcmc.run(generations=20000, tuningInterval=200)
-
-
-
-# VII. 	Extract summary tree and generate MCC tree from it
-#trace = readTreeTrace("data/output/relaxed_clock_nuc/nuc_global.trees")
-#mccTree(trace, file="data/output/relaxed_clock_nuc/nuc_global.mcc.tre" )
-
-
-
