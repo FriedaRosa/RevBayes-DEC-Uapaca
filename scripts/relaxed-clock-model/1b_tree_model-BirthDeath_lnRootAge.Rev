@@ -49,10 +49,12 @@ timetree.setValue(T) # Set starting value for timetree
 
 # V. Contrain monophyletic clades to estimate timetree and monitor their age
 clade_uapaca = clade("U_amplifolia", "U_nitida", "U_heudelotii", "U_acuminata", "U_togoensis", "U_mole", "U_lissopyrena", "U_guineensis", "U_pilosa", "U_kirkiana", "U_robynsii", "U_sansibarica", "U_pilosa_var_petiolata", "U_vanhouttei", "U_littoralis", "U_ferruginea", "U_densifolia", "U_thouarsii", "U_louvelii", "U_bojeri_1") 
+clade_madagascar = clade("U_littoralis", "U_ferruginea", "U_thouarsii", "U_densifolia", "U_louvelii", "U_bojeri_1")
+
 
 # VI. Define Monitor for clade age
 age_uapaca := tmrca(timetree, clade_uapaca)
-
+age_mada := tmrca(timetree, clade_madagascar)
 
 # VII. Define Moves 
 # propose changes to node ages
