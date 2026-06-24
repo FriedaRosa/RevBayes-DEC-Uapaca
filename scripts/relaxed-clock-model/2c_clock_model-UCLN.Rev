@@ -1,0 +1,50 @@
+
+# I. Uncorrelated Lognormal relaxed Clock <branch_rates>
+
+# set up independent branch rates
+n_branches <- 2 * n_taxa - 2
+
+# mean of the lognormal
+ucln_mean ~ dnExponential(2.0)
+
+# standard deviatoin (exponentially distirbuted - sigma)
+ucln_sigma ~ dnExponential(3.0)
+
+# variance (determinisitc - sigma^2)
+ucln_var := ucln_sigma * ucln_sigma
+
+# declare deterministic function to get mu
+ucln_mu := ln(ucln_mean) - (ucln_var * 0.5)
+
+
+# Declare moves for the two stochastic variables (mean and sigma)
+moves.append( mvScale(ucln_mean, lambda=1.0, tune=true, weight=4.0))
+moves.append( mvScale(ucln_sigma, lambda=0.5, tune=true, weight=4.0))
+
+
+# The nodes represent mu and sigma of the log normal distribution
+# We need to create a vector of stochastic nodes for each branch in a loop and define the moves
+for(i in 1:n_branches){
+   branch_rates[i] ~ dnLnorm(ucln_mu, ucln_sigma)
+   moves.append( mvScale(branch_rates[i], lambda=1, tune=true, weight=2.))
+}
+
+moves.append( mvVectorScale(branch_rates,lambda=1.0,tune=true,weight=2.0) )
+moves.append( mvVectorSingleElementScale(branch_rates,lambda=30.0,tune=true,weight=1.0) )
+
+mean_rt := mean(branch_rates) 
+
+
+
+# II. Sequence model (GTR)
+sf ~ dnDirichlet(v(1,1,1,1))
+er ~ dnDirichlet(v(1,1,1,1,1,1))
+Q := fnGTR(er,sf)
+moves.append( mvSimplexElementScale(er, alpha=10.0, tune=true, weight=3.0))
+moves.append( mvSimplexElementScale(sf, alpha=10.0, tune=true, weight=3.0))
+
+
+# III. Define PhyloCTMC Model
+phySeq ~ dnPhyloCTMC(tree=timetree, Q=Q, branchRates=branch_rates, nSites=n_sites, type="DNA")
+# attach the observed sequence data
+phySeq.clamp(D)

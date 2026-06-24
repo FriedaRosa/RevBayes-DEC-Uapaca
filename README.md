@@ -2,30 +2,37 @@
 Friederike Wölke
 2026-06-20
 
-- [RevBayes-DEC-Uapaca](#revbayes-dec-uapaca)
-  - [The resulting ancestral range reconstruction on the nuclear tree
-    (DEC):](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree-dec)
-  - [The resulting ancestral range reconstruction on the nuclear tree
-    (DEC+J+F):](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree-decjf)
-  - [The resulting ancestral range reconstruction on the plastome tree
-    (DEC):](#the-resulting-ancestral-range-reconstruction-on-the-plastome-tree-dec)
-  - [The resulting ancestral range reconstruction on the plastome tree
-    (DEC+J+F):](#the-resulting-ancestral-range-reconstruction-on-the-plastome-tree-decjf)
+- [RevBayes-Uapaca Models](#revbayes-uapaca-models)
+- [Analyses in this repository:](#analyses-in-this-repository)
+  - [A. DEC vs. DEC+J+F analysis](#a-dec-vs-decjf-analysis)
+    - [The resulting ancestral range reconstruction on the nuclear tree
+      (DEC):](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree-dec)
+    - [The resulting ancestral range reconstruction on the nuclear tree
+      (DEC+J+F):](#the-resulting-ancestral-range-reconstruction-on-the-nuclear-tree-decjf)
+    - [The resulting ancestral range reconstruction on the plastome tree
+      (DEC):](#the-resulting-ancestral-range-reconstruction-on-the-plastome-tree-dec)
+    - [The resulting ancestral range reconstruction on the plastome tree
+      (DEC+J+F):](#the-resulting-ancestral-range-reconstruction-on-the-plastome-tree-decjf)
+  - [B. Molecular clock model
+    selection](#b-molecular-clock-model-selection)
 
-# RevBayes-DEC-Uapaca
+# RevBayes-Uapaca Models
 
-This repository contains the *RevBayes* scripts used to perform the
-Dispersal-Extinction-Cladogenesis (DEC) analyses on the *Uapaca*
-angiosperm3535-dataset. To set up RevBayes see
+This repository contains the *RevBayes* models used to analyze selected
+genes from my *Uapaca* angiosperm353 and plastome datasets.
+
+To set up RevBayes see
 [00_Configure_Project_and_RevBayes.html](https://rawcdn.githack.com/FriedaRosa/RevBayes-DEC-Uapaca/aa4309eb62f3c4882015774bb879518bd8b45e1a/00_Configure_Project_and_RevBayes.html).
 
-The folder is organized into the following subfolders: `content` and
-`scripts`
+The folder is organized into the following subfolders: `data` and
+`scripts`. `content` holds the RevBayes executable (as downloaded via
+the 00_Configure_Project_and_RevBayes.qmd).
 
     .
     ├── 00_Configure_Project_and_RevBayes.html
     ├── 00_Configure_Project_and_RevBayes.qmd
     ├── content
+    ├── data
     ├── figures
     ├── history.txt
     ├── README.md
@@ -36,9 +43,9 @@ The folder is organized into the following subfolders: `content` and
     ├── RevBayes-DEC-Uapaca.Rproj
     └── scripts
 
-Where `content` contains the data (input/output) for the RevBayes
-analyses, including the nuclear tree, plastome tree which were inferred
-in the phylogenomics pipelines:
+Where `data` contains the data (input/output) for the RevBayes analyses,
+including the nuclear tree, plastome tree which were inferred in the
+phylogenomics pipelines:
 
 1)  **Nuclear**: <https://github.com/FriedaRosa/HybSuite_pipeline_2026>
 
@@ -92,7 +99,7 @@ in the phylogenomics pipelines:
 
 <!-- -->
 
-    content/data/input/molecular_data/
+    data/input/molecular_data/
     ├── plastome_concat.nex
     ├── uapaca_gene_1.nex
     ├── uapaca_gene_2.nex
@@ -104,18 +111,31 @@ in the phylogenomics pipelines:
     ├── uapaca_gene_8.nex
     └── uapaca_gene_9.nex
 
-## The resulting ancestral range reconstruction on the nuclear tree (DEC):
+# Analyses in this repository:
+
+## A. DEC vs. DEC+J+F analysis
+
+This repository contains the *RevBayes* scripts used to perform the
+Dispersal-Extinction-Cladogenesis (DEC) analyses (and in addition one
+that includes jump dispersal and full sympatry)
+
+### The resulting ancestral range reconstruction on the nuclear tree (DEC):
 
 ![Nuclear tree](figures/simple_dec_acr.png)
 
-## The resulting ancestral range reconstruction on the nuclear tree (DEC+J+F):
+### The resulting ancestral range reconstruction on the nuclear tree (DEC+J+F):
 
 ![Nuclear tree](figures/DECJ_nuclear_asr.png)
 
-## The resulting ancestral range reconstruction on the plastome tree (DEC):
+### The resulting ancestral range reconstruction on the plastome tree (DEC):
 
 ![Plastome tree](figures/plastome_simple_acr.png)
 
-## The resulting ancestral range reconstruction on the plastome tree (DEC+J+F):
+### The resulting ancestral range reconstruction on the plastome tree (DEC+J+F):
 
 ![Plastome tree](figures/DECJ_plastome_asr.png)
+
+## B. Molecular clock model selection
+
+That part is based on the following tutorial:
+https://revbayes.github.io/tutorials/clocks/

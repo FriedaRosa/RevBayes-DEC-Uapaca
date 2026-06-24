@@ -1,0 +1,3 @@
+Model   Path-Sampling   Stepping-stone-sampling
+Global-molecular-clock  -14345.83   -14345.83
+Uncorrelated-lognormal  -14317.84   -14319.57

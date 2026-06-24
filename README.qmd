@@ -10,34 +10,34 @@ standalone: true
 toc: true
 ---
 
-# RevBayes-DEC-Uapaca
+# RevBayes-Uapaca Models
 
-This repository contains the *RevBayes* scripts used to perform the Dispersal-Extinction-Cladogenesis (DEC) analyses on the *Uapaca* angiosperm3535-dataset.
+This repository contains the *RevBayes* models used to analyze selected genes from my *Uapaca* angiosperm353 and plastome datasets.
+
+
 To set up RevBayes see [00_Configure_Project_and_RevBayes.html](https://rawcdn.githack.com/FriedaRosa/RevBayes-DEC-Uapaca/aa4309eb62f3c4882015774bb879518bd8b45e1a/00_Configure_Project_and_RevBayes.html).
 
-The folder is organized into the following subfolders: `content` and `scripts`
+The folder is organized into the following subfolders: `data` and `scripts`. `content` holds the RevBayes executable (as downloaded via the 00_Configure_Project_and_RevBayes.qmd).
 
 ```{r}
-#| echo: false
 suppressPackageStartupMessages(library(fs))
 dir_tree(recurse = FALSE)
 ```
 
-Where `content` contains the data (input/output) for the RevBayes analyses, including the nuclear tree, plastome tree which were inferred in the phylogenomics pipelines:
+Where `data` contains the data (input/output) for the RevBayes analyses, including the nuclear tree, plastome tree which were inferred in the phylogenomics pipelines:
 
 1)  **Nuclear**: <https://github.com/FriedaRosa/HybSuite_pipeline_2026>
 
 ![](figures/nuclear_tree.png){width="681"}
 
 ```{r}
-#| echo: false
 #| eval: false
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(dplyr))
 
 png(filename = "figures/nuclear_tree.png", width = 800, height = 600)
 read.tree(
-  "content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
+  "data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
 ) %>%
   ladderize() %>%
   plot()
@@ -49,14 +49,13 @@ dev.off()
     ![](figures/plastome.png)
 
 ```{r}
-#| echo: false
 #| eval: false
 library(ape)
 library(dplyr)
 
 png(filename = "figures/plastome.png")
 read.tree(
-  "content/data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre"
+  "data/input/phylogenetic_tree/uapaca_start_ultrametric_plastome.tre"
 ) %>%
   ladderize() %>%
   root(outgroup = "Spondianthus_preussii", resolve.root = TRUE) %>%
@@ -67,31 +66,38 @@ dev.off()
 3)  it also includes the **Distribution** **Ranges**: `Uapaca_range.nex` which was written by hand with the following format:
 
 ```{r}
-#| echo: false
-r <- readLines("./content/data/input/Uapaca_range.nex")
+r <- readLines("./data/input/Uapaca_range.nex")
 cat(paste(r, collapse = "\n"))
 ```
 
 4.  and some high-coverage **molecular sequence** data to estimate the rate of sequence evolution for molecular clock models
 
 ```{r}
-#| echo: false
 fs::dir_tree(
-  "content/data/input/molecular_data/",
+  "data/input/molecular_data/",
   regexp = "(?:uapaca|plastome).*\\.nex$"
 )
 ```
 
 
-## The resulting ancestral range reconstruction on the nuclear tree (DEC):
+# Analyses in this repository:
+
+## A. DEC vs. DEC+J+F analysis
+This repository contains the *RevBayes* scripts used to perform the Dispersal-Extinction-Cladogenesis (DEC) analyses (and in addition one that includes jump dispersal and full sympatry)
+
+### The resulting ancestral range reconstruction on the nuclear tree (DEC):
 ![Nuclear tree](figures/simple_dec_acr.png)
 
-
-## The resulting ancestral range reconstruction on the nuclear tree (DEC+J+F):
+### The resulting ancestral range reconstruction on the nuclear tree (DEC+J+F):
 ![Nuclear tree](figures/DECJ_nuclear_asr.png)
 
-## The resulting ancestral range reconstruction on the plastome tree (DEC):
+### The resulting ancestral range reconstruction on the plastome tree (DEC):
 ![Plastome tree](figures/plastome_simple_acr.png)
 
-## The resulting ancestral range reconstruction on the plastome tree (DEC+J+F):
+### The resulting ancestral range reconstruction on the plastome tree (DEC+J+F):
 ![Plastome tree](figures/DECJ_plastome_asr.png)
+
+## B. Molecular clock model selection
+That part is based on the following tutorial: https://revbayes.github.io/tutorials/clocks/
+
+
