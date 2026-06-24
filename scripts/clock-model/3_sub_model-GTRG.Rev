@@ -1,0 +1,51 @@
+# General Time-Reversible Gamma model 
+
+
+# I.    Define Q-matrix for nucleotindes as GTR+G model. 
+# It is defined by 4 stationary frequencies and 6 exchangeability rates. 
+# The stationary frequencies and exchangeability rates are drawn from a Dirichlet distributions 
+# and created as stochastic nodes.
+
+
+# a)    Stationary Frequencies (sf)
+sf_hp <- v(1,1,1,1)             # 4
+sf ~ dnDirichlet(sf_hp)
+
+
+# b)    Exchangeability rates (er)
+er_hp <- v(1,1,1,1,1,1)         # 6
+er ~ dnDirichlet(er_hp)
+
+
+# II.   Define moves to propose change to the Dirichlet random variable
+# this is tricky for Dirichlet because the value must always lie on the simplex 
+# i.e., sum up to = 1.
+# Larger alpha leads to values closer to the current value (defines how conservative the proposal is)
+
+moves.append( mvBetaSimplex(er, alpha=10.0, weight=3.0) )
+moves.append( mvBetaSimplex(sf, alpha=10.0, weight=2.0) )
+
+# III. Define a deterministic node for the GTR Q-matrix:
+Q_plstm := fnGTR(er,sf)
+
+
+# IV. Adding the gamma distributions for rates across sites:    
+# a)    Define alpha (exponential parameter that defines the shape of the gamma distribution)
+alpha_plstm ~ dnUniform( 0.0, 1E6 )
+alpha_plstm.setValue( 1.0 )
+
+# b)     Define scale proposals for alpha parameter of the gamma distribution
+moves.append( mvScale(alpha_plstm, lambda=0.5,tune=true, weight=2.0) )
+
+# c)     Create the Gamma distribution
+# the rates are determined by the mean of each category.
+rates_plstm := fnDiscretizeGamma( alpha_plstm, alpha_plstm, 4 )
+
+
+# V.    Create phylogenetic continuous time Markov chain (PhyloCTMC) distribution for the sequence data
+# includes: gamma-distributioed site rate categories, branch rates from the clock model.
+# set the value of this distribution equal to our observed data 
+# and make it a static part of the likelihood (clamp)
+
+phySeq ~ dnPhyloCTMC(tree=timetree, Q=Q_plstm, siteRates=rates_plstm, branchRates=branch_rates, type="DNA")
+phySeq.clamp(plstm)
