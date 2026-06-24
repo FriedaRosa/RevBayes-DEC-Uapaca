@@ -10,3 +10,5 @@ content/revbayes*
 !/data/input/Uapaca_range_plastome.nex
 *.fasta
 history.txt
+*.log
+*.out
