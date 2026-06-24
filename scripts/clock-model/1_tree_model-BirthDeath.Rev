@@ -44,4 +44,4 @@ moves.append( mvSubtreeScale(timetree, weight=n_taxa/5.0) )
 
 # VIII. Define Monitors:
 # a)    clade age
-age_ursinae := tmrca(timetree, clade_uapaca)
+age_uapaca := tmrca(timetree, clade_uapaca)
