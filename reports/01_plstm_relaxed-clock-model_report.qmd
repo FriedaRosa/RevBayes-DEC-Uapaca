@@ -1,0 +1,105 @@
+---
+title: "Report for molecular clock estimaten and model comparison between different clock models"
+author: Friederike Wölke
+date: 2026-06-24
+format: html
+embed-resources: true
+standalone: true
+toc: true
+---
+
+```{r}
+library(here)
+here()
+```
+
+
+# Workflow
+
+```{r}
+fp <- here("scripts/clock-model/")
+
+fs::dir_tree(path = fp)
+```
+
+
+In RevBayes run the following scripts:
+```{bash}
+#| eval: false
+
+# in RevBayes run scripts:
+source(fp+"0_master_file-MCMC_dating.Rev") # m0 - Exponential distribution for global clock
+
+```
+
+
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+library(ape)
+library(phytools)
+library(dplyr)
+library(phangorn)
+
+tre <-
+  read.tree(
+    here(
+      "data/output/clock_model_plstm/plstm_global.trees"
+    )
+  )
+
+
+tree_mcc <-
+  read.tree(
+    here(
+      "data/output/clock_model_plstm/plstm_global.mcc.tre"
+    )
+  )
+```
+
+Phytools consensus tree:
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+ct <-
+  phytools::ls.consensus(tre) %>%
+  root.phylo(outgroup = "Spondianthus_preussii") %>%
+  ladderize()
+plot(ct)
+axisPhylo()
+```
+
+Phangorn MCC tree
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+mcc <-
+  phangorn::maxCladeCred(tre, rooted = FALSE) %>%
+  root.phylo(outgroup = "Spondianthus_preussii") %>%
+  ladderize()
+plot(mcc)
+axisPhylo()
+
+
+write.tree(
+  mcc,
+  file = "data/output/clock_model_plstm/plstm_global.phangorn-mcc.tre"
+)
+```
+
+RevBayes MCC tree
+
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+tree_mcc <- tree_mcc[[6]] %>%
+  root.phylo(outgroup = "Spondianthus_preussii") %>%
+  ladderize()
+
+plot(tree_mcc)
+axisPhylo()
+```

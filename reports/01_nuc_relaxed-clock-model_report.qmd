@@ -1,0 +1,104 @@
+---
+title: "Report for molecular clock estimaten and model comparison between different clock models"
+author: Friederike Wölke
+date: 2026-06-24
+format: html
+embed-resources: true
+standalone: true
+toc: true
+---
+
+```{r}
+library(here)
+here()
+```
+
+
+# Workflow
+
+```{r}
+fp <- here("scripts/relaxed-clock-model/nuclear/")
+
+fs::dir_tree(path = fp)
+```
+
+
+In RevBayes run the following scripts:
+```{bash}
+#| eval: false
+
+# in RevBayes run scripts:
+source(fp+"0b_master_file-relaxed_clocks_global.Rev") # m0 - Gamma distribution for clock
+source(fp+"0c_master_file-relaxed_clocks_UCLN.Rev") # m1 - Log normal distribution for clock
+
+
+# then make a pairwise comparison of bayes factors (BF) between the two models 
+source(fp+"4_compute_BF.Rev")
+
+# run MCMC for the best model (UCLN)
+source(fp+"5_MCMC-estimate_topology_branchtimes.Rev")
+
+```
+
+
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+library(ape)
+library(phytools)
+library(dplyr)
+library(phangorn)
+
+tre <-
+  read.tree(
+    here(
+      "data/output/relaxed_clock_nuc/TimeTree_uapaca_mcmc.trees"
+    )
+  )
+```
+
+Phytools consensus tree:
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+ct <-
+  phytools::ls.consensus(tre) %>%
+  root.phylo(outgroup = "Spondianthus_preussii") %>%
+  ladderize()
+plot(ct)
+axisPhylo()
+```
+
+Phangorn MCC tree
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+mcc <-
+  phangorn::maxCladeCred(tre, rooted = FALSE) %>%
+  root.phylo(outgroup = "Spondianthus_preussii") %>%
+  ladderize()
+plot(mcc)
+axisPhylo()
+```
+
+RevBayes MCC tree
+
+```{r}
+#| echo: false
+#| fig.height: 10
+#| fig.width: 8
+tree_mcc <-
+  read.tree(
+    here(
+      "data/output/relaxed_clock_nuc/TimeTree_uapaca_mcmc_MAP.tre"
+    )
+  )[[6]] %>%
+  root.phylo(outgroup = "Spondianthus_preussii") %>%
+  ladderize()
+
+plot(tree_mcc)
+axisPhylo()
+```
