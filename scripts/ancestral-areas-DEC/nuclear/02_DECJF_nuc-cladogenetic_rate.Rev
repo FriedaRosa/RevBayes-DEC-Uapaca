@@ -1,0 +1,9 @@
+# 3. Cladogenetic component
+
+# s = sympatry, a = allopatry, j = jump dispersal, f = full sympatry
+clado_event_types <- [ "s", "a", "j", "f"]
+clado_event_probs <- simplex(1,1,1,1)
+
+P_DEC := fnDECCladoProbs(eventProbs=clado_event_probs,
+                         eventTypes=clado_event_types,
+                         numCharacters=n_areas)

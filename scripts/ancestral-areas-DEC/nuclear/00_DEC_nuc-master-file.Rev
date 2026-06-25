@@ -1,0 +1,100 @@
+###########################################################################
+#           Master File - DEC-Model - Angiosperm353-tree                  #
+###########################################################################
+
+
+# 0. Define variables with paths
+
+out_fn   = "./data/output/ancestral-areas-DEC/DEC_nuc"
+tree_fn  = "./data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"
+range_fn = "./data/input/Uapaca_range.nex"
+
+
+
+
+# I. Read ranges and convert to numeric
+
+dat_range_01 = readDiscreteCharacterData(range_fn)
+dat_range_n = formatDiscreteCharacterData(dat_range_01, "DEC")
+
+# Extract info from <ranges.nex>
+n_areas  = dat_range_01.nchar()
+state_desc = dat_range_n.getStateDescriptions()
+
+state_desc_str = "state,range\n"
+for (i in 1:state_desc.size())
+{
+    state_desc_str += (i-1) + "," + state_desc[i] + "\n"
+}
+write(state_desc_str, file=out_fn+".state_labels.txt")
+
+
+
+
+
+
+
+# II. Set up Moves and Monitors
+
+moves = VectorMoves()
+monitors = VectorMonitors()
+n_gen = 20000
+
+
+
+
+
+
+# III. Source Rates Script
+
+source("scripts/ancestral-areas-DEC/nuclear/01_DEC-DECJ_nuc-rate_parameters.Rev")
+source("scripts/ancestral-areas-DEC/nuclear/02_DEC_nuc-cladogenetic_rate.Rev")
+
+
+
+
+# IV. Full model:
+
+# read tree
+tree <- readTrees(tree_fn)[1]
+
+
+m_bg ~ dnPhyloCTMCClado(tree=tree,
+                           Q=Q_DEC,
+                           cladoProbs=P_DEC,
+                           branchRates=rate_bg,
+                           type="NaturalNumbers",
+                           nSites=1)
+
+
+
+# V. Clamp data
+m_bg.clamp(dat_range_n)
+
+
+# VI. Model
+mymodel = model(m_bg)
+
+
+
+
+
+# VII. Define monitors
+monitors.append( mnScreen(printgen=100, rate_bg) )
+monitors.append( mnModel(file=out_fn+".model.log", printgen=1) )
+monitors.append( mnFile(tree, filename=out_fn+".tre", printgen=1) )
+monitors.append( mnJointConditionalAncestralState(tree=tree,
+                                                  ctmc=m_bg,
+                                                  type="NaturalNumbers",
+                                                  withTips=true,
+                                                  withStartStates=true,
+                                                  filename=out_fn+".states.log",
+                                                  printgen=1) )
+monitors.append( mnStochasticCharacterMap(ctmc=m_bg,
+                                          filename=out_fn+".stoch.log",
+                                          printgen=10) )
+
+
+# VIII. Source Marginal Likelihood analysis
+
+source("scripts/ancestral-areas-DEC/nuclear/03_DEC_nuc-marginal_likelihood_analysis.Rev")

@@ -1,0 +1,36 @@
+
+# 0. Set Biogeographic rate parameter priors:
+
+log10_rate_bg ~ dnUniform(-4,2)
+log10_rate_bg.setValue(-2)
+moves.append( mvScale(log10_rate_bg, weight=4) )
+rate_bg := 10^log10_rate_bg
+
+
+# 1. Dispersal rate
+dispersal_rate <- 1.0
+
+for (i in 1:n_areas) {
+    for (j in 1:n_areas) {
+        dr[i][j] <- dispersal_rate
+    }
+}
+
+# 2. Extirpation rate
+# Estimate extirpation rate
+log_sd <- 0.5
+log_mean <- ln(1) - 0.5*log_sd^2
+extirpation_rate ~ dnLognormal(mean=log_mean, sd=log_sd)
+moves.append( mvScale(extirpation_rate, weight=2) )
+
+for (i in 1:n_areas) {
+    for (j in 1:n_areas) {
+        er[i][j] <- 0.0       
+    }
+    er[i][i] := extirpation_rate
+}
+
+Q_DEC := fnDECRateMatrix(dispersalRates=dr,
+                         extirpationRates=er)
+
+
