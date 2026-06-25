@@ -1,0 +1,37 @@
+### Compares 2 different relaxed clock models on a fixed tree (after power posteriors are run)
+# First we get estimates of marginal likelihoods from a file containing power posterior distributions
+# It then calculates the Bayes factor for each pair-wise comparison 
+
+# Using the stepping-stone sampler, calculate the marginal likelihoods for each model from the power posteriors
+ss_DEC = steppingStoneSampler(file="data/output/ancestral-areas-DEC/DEC_uapaca_powp.out", powerColumnName="power", likelihoodColumnName="likelihood")
+ss_DECJ = steppingStoneSampler(file="data/output/ancestral-areas-DEC/DECJ_uapaca_powp.out", powerColumnName="power", likelihoodColumnName="likelihood")
+ss_DECJF = steppingStoneSampler(file="data/output/ancestral-areas-DEC/DECJF_uapaca_powp.out", powerColumnName="power", likelihoodColumnName="likelihood")
+
+
+
+mLnL_m0 <- ss_DEC.marginal()
+mLnL_m1 <- ss_DECJ.marginal()
+mLnL_m2 <- ss_DECJF.marginal()
+
+### pairwise comparisons of each model using Bayes factors
+# DEC vs. DECJ
+BF_01 <- mLnL_m0 - mLnL_m1
+
+"BF_01"
+BF_01
+
+
+# DEC vs. DECJF
+BF_02 <- mLnL_m0 - mLnL_m2
+
+"BF_02"
+BF_02
+
+
+# DECJ vs. DECJF
+BF_03 <- mLnL_m1 - mLnL_m2
+
+"BF_03"
+BF_03
+
+"if < -1 model M1 is preferred"

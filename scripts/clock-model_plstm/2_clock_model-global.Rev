@@ -1,0 +1,7 @@
+# global molecular clock model with constant rates over time and tree
+
+# stochastic branch rate = exponential prior with rate parameter =   10 (expected value =    0.1)
+branch_rates ~ dnExponential(10.0)
+
+# Define moves 
+moves.append( mvScale(branch_rates, lambda=0.5, tune=true, weight=3.0) )

@@ -6,8 +6,8 @@ format: html
 embed-resources: true
 standalone: true
 toc: true
-
 ---
+
 General setup for RevBayes via Positron Interface and R.
 
 
@@ -29,6 +29,12 @@ dir.create("content", showWarnings = FALSE)
 
 # create scripts folder
 dir.create("scripts", showWarnings = FALSE)
+
+# create data folder
+dir.create("data", showWarnings = FALSE)
+
+# create reports folder
+dir.create("reports", showWarnings = FALSE)
 ```
 
 # II. Set up R environment
@@ -43,7 +49,9 @@ packages_to_load <- c(
   "RevGadgets",
   "magick",
   "ggplot2",
-  "BiocManager"
+  "BiocManager",
+  "phytools",
+  "coda"
 )
 
 lapply(packages_to_load, function(pkg) {
@@ -163,7 +171,7 @@ The alignment fastas were copied from the original HybSuite folder in my Linux s
 
 For reference (only), here is the script I used to copy files from Linux to Windows.
 
-```{bash, include=FALSE}
+```{bash}
 #| eval: false
 #!/bin/bash
 
@@ -354,4 +362,6 @@ citation("ggplot2")
 citation("RevGadgets")
 citation("magick")
 citation("BiocManager")
+citation("phytools")
+citation("coda")
 ```

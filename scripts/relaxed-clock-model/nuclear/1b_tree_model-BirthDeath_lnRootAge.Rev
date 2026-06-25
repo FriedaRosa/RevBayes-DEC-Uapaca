@@ -1,0 +1,69 @@
+
+# I.    Set up Birth-Death process (exponential)
+
+# a)    Diversification
+diversification ~ dnExponential(10.0) 
+
+# b)    Turnover
+turnover ~ dnBeta(2.0, 2.0) 
+
+# c)    Deterministic nodes for birth and death rates (deterministic functions of diversification and turnover)
+denom := abs(1.0 - turnover)         # 1-r --> denominator for each formula to convert rates to positive real numbers
+birth_rate := diversification / denom
+death_rate := (turnover * diversification) / denom
+
+
+# II.   Declare <moves> for each rate variable
+moves.append( mvScale(diversification, lambda=1.0, tune=true, weight=3.0) )
+moves.append( mvSlide(turnover, delta=1.0, tune=true, weight=3.0) )
+
+
+
+# III.  Set up additional variables
+# a)    sampling portion of phylogeny (rho)
+rho <- 21/27
+
+# b)    root age ( extant mrca)
+# based on timetree.org the mrca of Spondianthus and Uapaca was between 39.6 and 73.2 mya
+# with a mean of 53.0 mya. Previously we used the mean to esimate the root age
+# now we will create a stochastic node following a lognormal.
+
+Phyllanthus <- 39.6 # occurrence-time of the fossil (from AngioCal database)
+
+# estimated mrca from secondary calibration is 73.2 mya and the fossil was 39.6. 
+# We will calculate the difference of both to define the mean (expected value) of the lognormal (<mean_ra>).
+# mean(73.2 - 39.6)     = 56.4
+# sd                    = 0.25 (arbitrary ?)
+
+mean_ra <- 56.4
+stdv_ra <- 0.25
+mu_ra <- ln(mean_ra) - ((stdv_ra*stdv_ra) * 0.5) 
+
+root_time ~ dnLognormal(mu_ra, stdv_ra, offset=Phyllanthus)
+ 
+
+# IV. Define prior distribution of tree topology and divergence times
+timetree ~ dnBDP(lambda=birth_rate, mu=death_rate, rho=rho, rootAge=root_time, samplingStrategy="uniform", condition="nTaxa", taxa=taxa)
+timetree.setValue(T) # Set starting value for timetree
+
+
+# V. Contrain monophyletic clades to estimate timetree and monitor their age
+clade_uapaca = clade("U_amplifolia", "U_nitida", "U_heudelotii", "U_acuminata", "U_togoensis", "U_mole", "U_lissopyrena", "U_guineensis", "U_pilosa", "U_kirkiana", "U_robynsii", "U_sansibarica", "U_pilosa_var_petiolata", "U_vanhouttei", "U_littoralis", "U_ferruginea", "U_densifolia", "U_thouarsii", "U_louvelii", "U_bojeri_1") 
+#clade_madagascar = clade("U_littoralis", "U_ferruginea", "U_thouarsii", "U_densifolia", "U_louvelii", "U_bojeri_1")
+
+
+# VI. Define Monitor for clade age
+age_uapaca := tmrca(timetree, clade_uapaca)
+#age_mada := tmrca(timetree, clade_madagascar)
+
+# VII. Define Moves 
+# propose changes to node ages
+moves.append( mvNodeTimeSlideUniform(timetree, weight=30.0 ) )
+moves.append( mvSlide(root_time, delta=2.0, tune=true, weight=10.0) )
+moves.append( mvScale(root_time, lambda=2.0, tune=true, weight=10.0) )
+moves.append( mvTreeScale(tree=timetree, rootAge=root_time, delta=1.0, tune=true, weight=3.0) )
+
+# propose changes to tree topology
+moves.append( mvNNI(timetree, weight=8.0) )
+moves.append( mvNarrow(timetree, weight=8.0) )
+moves.append( mvFNPR(timetree, weight=8.0) )

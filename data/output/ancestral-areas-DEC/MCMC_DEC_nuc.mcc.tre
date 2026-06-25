@@ -1,0 +1,32 @@
+#NEXUS
+
+	Begin taxa;
+	Dimensions ntax=21;
+	Taxlabels
+		Spondianthus_preussii
+		U_acuminata
+		U_amplifolia
+		U_bojeri_1
+		U_densifolia
+		U_ferruginea
+		U_guineensis
+		U_heudelotii
+		U_kirkiana
+		U_lissopyrena
+		U_littoralis
+		U_louvelii
+		U_mole
+		U_nitida
+		U_pilosa
+		U_pilosa_var_petiolata
+		U_robynsii
+		U_sansibarica
+		U_thouarsii
+		U_togoensis
+		U_vanhouttei
+		;
+End;
+
+Begin trees;
+tree TREE1 = [&R](((((((((((U_lissopyrena[&index=14]:0.050000,U_mole[&index=15]:0.050000)[&index=22,age_95%_HPD={0.05,0.05}]:0.050000[&posterior=1.000000],U_guineensis[&index=13]:0.100000)[&index=23,age_95%_HPD={0.1,0.1}]:0.050000[&posterior=1.000000],U_pilosa[&index=12]:0.150000)[&index=24,age_95%_HPD={0.15,0.15}]:0.050000[&posterior=1.000000],U_kirkiana[&index=11]:0.200000)[&index=25,age_95%_HPD={0.2,0.2}]:0.100000[&posterior=1.000000],(U_robynsii[&index=10]:0.050000,U_sansibarica[&index=9]:0.050000)[&index=26,age_95%_HPD={0.05,0.05}]:0.250000[&posterior=1.000000])[&index=27,age_95%_HPD={0.3,0.3}]:0.100000[&posterior=1.000000],(U_pilosa_var_petiolata[&index=8]:0.050000,U_vanhouttei[&index=7]:0.050000)[&index=28,age_95%_HPD={0.05,0.05}]:0.350000[&posterior=1.000000])[&index=29,age_95%_HPD={0.4,0.4}]:0.050000[&posterior=1.000000],U_togoensis[&index=16]:0.450000)[&index=30,age_95%_HPD={0.45,0.45}]:0.300000[&posterior=1.000000],(((((U_densifolia[&index=4]:0.050000,U_thouarsii[&index=3]:0.050000)[&index=31,age_95%_HPD={0.05,0.05}]:0.050000[&posterior=1.000000],U_louvelii[&index=2]:0.100000)[&index=32,age_95%_HPD={0.1,0.1}]:0.050000[&posterior=1.000000],U_bojeri_1[&index=1]:0.150000)[&index=33,age_95%_HPD={0.15,0.15}]:0.050000[&posterior=1.000000],U_ferruginea[&index=5]:0.200000)[&index=34,age_95%_HPD={0.2,0.2}]:0.050000[&posterior=1.000000],U_littoralis[&index=6]:0.250000)[&index=35,age_95%_HPD={0.25,0.25}]:0.500000[&posterior=1.000000])[&index=36,age_95%_HPD={0.75,0.75}]:0.150000[&posterior=1.000000],((U_heudelotii[&index=18]:0.050000,U_nitida[&index=19]:0.050000)[&index=37,age_95%_HPD={0.05,0.05}]:0.050000[&posterior=1.000000],U_acuminata[&index=17]:0.100000)[&index=38,age_95%_HPD={0.1,0.1}]:0.800000[&posterior=1.000000])[&index=39,age_95%_HPD={0.9,0.9}]:0.050000[&posterior=1.000000],U_amplifolia[&index=20]:0.950000)[&index=40,age_95%_HPD={0.95,0.95}]:0.050000[&posterior=1.000000],Spondianthus_preussii[&index=21]:1.000000)[&index=41,age_95%_HPD={1,1}]:0.000000[&posterior=1.000000];
+End;
