@@ -49,6 +49,39 @@ toc: true
 
     -   run RevBayes scripts like this: `rb scripts/fig-model/1_molecular_phylogenetics/01_divtime_uncalibrated.Rev`
 
+
+
+## Prepare the PALEOMAP to extract biogeographic features for Africa and Madagascar through time
+
+```{bash}
+#| eval: false
+conda create -n pygplates
+conda activate pygplates
+
+python3 -m venv pygplates_venv
+source pygplates_venv/bin/activate
+python -m pip install pygplates
+python -m pip install gplately
+```
+
+
+```{python}
+from pathlib import Path
+import pygplates
+
+gpml_files = list(Path("gplates_files").glob("*.gpml"))
+rot_files = list(Path("gplates_files").glob("*.rot"))
+
+print("GPML files:")
+for f in gpml_files:
+    print(" ", f)
+
+print("Rotation files:")
+for f in rot_files:
+    print(" ", f)
+
+```
+
 ### A) Biogeographic dating with node dating (fixed tree)
 
 ### B) Biogeographic dating with molecular clock (tree as random variable)
