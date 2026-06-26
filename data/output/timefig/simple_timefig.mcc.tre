@@ -1,0 +1,35 @@
+#NEXUS
+
+	Begin taxa;
+	Dimensions ntax=24;
+	Taxlabels
+		Spondianthus_preussii
+		U_acuminata
+		U_ambanjensis
+		U_amplifolia
+		U_bojeri_1
+		U_bojeri_2
+		U_densifolia
+		U_guineensis
+		U_heudelotii
+		U_kirkiana
+		U_lissopyrena
+		U_littoralis
+		U_louvelii
+		U_mole
+		U_nitida
+		U_pilosa
+		U_pynaertii
+		U_rufopilosa
+		U_sansibarica
+		U_staudtii
+		U_teusczii_f_pilosa
+		U_teusczii_f_teusczii
+		U_togoensis
+		U_vanhouttei
+		;
+End;
+
+Begin trees;
+tree TREE1 = [&R](((((((((U_bojeri_2[&index=24]:0.467329,U_littoralis[&index=23]:0.467329)[&index=25,age_95%_HPD={0.467329,0.467329}]:0.741388[&posterior=1.000000],U_louvelii[&index=22]:1.208717)[&index=26,age_95%_HPD={1.20872,1.20872}]:0.012829[&posterior=1.000000],U_densifolia[&index=21]:1.221546)[&index=27,age_95%_HPD={1.22155,1.22155}]:2.444067[&posterior=1.000000],U_bojeri_1[&index=20]:3.665613)[&index=28,age_95%_HPD={3.66561,3.66561}]:1.105675[&posterior=1.000000],(((U_kirkiana[&index=18]:1.186508,U_nitida[&index=19]:1.186508)[&index=29,age_95%_HPD={1.18651,1.18651}]:1.791927[&posterior=1.000000],U_sansibarica[&index=17]:2.978435)[&index=30,age_95%_HPD={2.97844,2.97844}]:0.858626[&posterior=1.000000],U_acuminata[&index=16]:3.837061)[&index=31,age_95%_HPD={3.83706,3.83706}]:0.934227[&posterior=1.000000])[&index=32,age_95%_HPD={4.77129,4.77129}]:20.843076[&posterior=1.000000],((((U_ambanjensis[&index=14]:7.975327,U_teusczii_f_pilosa[&index=15]:7.975327)[&index=33,age_95%_HPD={7.97533,7.97533}]:10.341070[&posterior=1.000000],U_guineensis[&index=13]:18.316397)[&index=34,age_95%_HPD={18.3164,18.3164}]:0.968897[&posterior=1.000000],U_heudelotii[&index=12]:19.285294)[&index=35,age_95%_HPD={19.2853,19.2853}]:2.606980[&posterior=1.000000],U_teusczii_f_teusczii[&index=11]:21.892274)[&index=36,age_95%_HPD={21.8923,21.8923}]:3.722090[&posterior=1.000000])[&index=37,age_95%_HPD={25.6144,25.6144}]:7.344558[&posterior=1.000000],((((U_lissopyrena[&index=10]:5.164106,U_staudtii[&index=9]:5.164106)[&index=38,age_95%_HPD={5.16411,5.16411}]:12.551663[&posterior=1.000000],(U_mole[&index=8]:3.114482,U_vanhouttei[&index=7]:3.114482)[&index=39,age_95%_HPD={3.11448,3.11448}]:14.601287[&posterior=1.000000])[&index=40,age_95%_HPD={17.7158,17.7158}]:2.661807[&posterior=1.000000],U_pilosa[&index=6]:20.377576)[&index=41,age_95%_HPD={20.3776,20.3776}]:9.473980[&posterior=1.000000],((U_pynaertii[&index=4]:14.985015,U_rufopilosa[&index=5]:14.985015)[&index=42,age_95%_HPD={14.985,14.985}]:0.170206[&posterior=1.000000],U_togoensis[&index=3]:15.155221)[&index=43,age_95%_HPD={15.1552,15.1552}]:14.696335[&posterior=1.000000])[&index=44,age_95%_HPD={29.8516,29.8516}]:3.107366[&posterior=1.000000])[&index=45,age_95%_HPD={32.9589,32.9589}]:18.930645[&posterior=1.000000],U_amplifolia[&index=2]:51.889567)[&index=46,age_95%_HPD={51.8896,51.8896}]:1.110434[&posterior=1.000000],Spondianthus_preussii[&index=1]:53.000001)[&index=47,age_95%_HPD={53,53}]:0.000000[&posterior=1.000000];
+End;

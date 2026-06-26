@@ -4,8 +4,11 @@ loadPlugin("TensorPhylo")
 # Set Variables with filepaths (fp)
 dat_fp = "./data/input/"
 out_fp = "./data/output/GeoSSE/"
-bg_fn  = dat_fp + "Uapaca_range.nex"
-phy_fn = "./data/output/divtime_uncalibrated/divtime_uncalibrated.mcc.tre"
+#bg_fn  = dat_fp + "Uapaca_range.nex"
+bg_fn  = dat_fp + "Uapaca_range_plastome.nex"
+#phy_fn = "./data/output/divtime_uncalibrated/divtime_uncalibrated.mcc.tre"
+phy_fn = "./data/output/clock_model_plstm/plstm_global.phangorn-mcc.tre"
+
 lbl_fn = out_fp + "range_state_labels.txt"
 
 
@@ -162,7 +165,6 @@ omega := clado_map.getCladogeneticProbabilityMatrix()
 # we will assume both ancestral states are equally likely
 pi_base <- rep(1,num_ranges)
 pi <- simplex(pi_base)
-
 
 
 

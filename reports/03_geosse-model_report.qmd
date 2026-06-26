@@ -40,7 +40,7 @@ Source: https://revbayes.github.io/tutorials/geosse/
 -   `cd` to `FIG_model`
 -   start RevBayes with: `rb`
 -   `loadPlugin("TensorPhylo")`
--   run RevBayes scripts like this: `rb scripts/fig-model/1_molecular_phylogenetics/01_divtime_uncalibrated.Rev`
+-   run RevBayes scripts like this: `rb scripts/GeoSSE-model.Rev`
 
 ## Setup the data
 
@@ -57,6 +57,7 @@ lbl_fn = outfp + "range_state_labels.txt"
 
 ```{bash}
 #| eval: false
+
 
 # Read the tree
 phy <- readTrees(phy_fn)[1]
@@ -102,6 +103,7 @@ bg_dat = formatDiscreteCharacterData(bg_01, format="GeoSSE", numStates=num_range
 ```{bash}
 #| eval: false
 
+
 # within-region rates
 r_w
 r_e
@@ -125,6 +127,7 @@ r_x
 ```{bash}
 #| eval: false
 
+
 # stochastic rho_x will be drawn from exponential distribution
 rho_w ~ dnExp(1)
 
@@ -144,6 +147,7 @@ follow the same setup as within-region speciation
 ```{bash}
 #| eval: false
 
+
 # stochastic rho_x will be drawn from exponential distribution
 rho_e ~ dnExp(1)
 
@@ -161,6 +165,7 @@ r_e := rho_e * m_e
 All multi-region rates will be assinged = 0 because a species needs to lose all regions for global extinction. 
 ```{bash}
 #| eval: false
+
 
 
 for (i in 1:num_ranges) {
@@ -206,6 +211,7 @@ for (i in 1:num_regions) {
 Finally, for dispersal rates, we want to assign rates to each region pair. These rates are allowed to be asymmetric, so we need num_pairs unique values. In this case 1.
 
 ```{bash}
+#| eval: false
 # base rate
 rho_d ~ dnExp(1)
 
@@ -232,6 +238,7 @@ for (i in 1:num_regions) {
 ### i. Anagenetic rate matrix
 
 ```{bash}
+#| eval: false
 Q_bg := fnBiogeographyRateMatrix(
     dispersalRates=r_d,
     extirpationRates=r_e,
@@ -243,6 +250,7 @@ Q_bg := fnBiogeographyRateMatrix(
 Describing the absolut rates of different cladogenetic events (speciation: w, b)
 
 ```{bash}
+#| eval: false
 clado_map := fnBiogeographyCladoEventsBD(
     speciation_rates=[rho_w,rho_b],
     within_region_features=m_w,
@@ -261,14 +269,17 @@ omega := clado_map.getCladogeneticProbabilityMatrix()
 ### iii. MRCA state
 Set up a probability distribution to assign to the range of the MRCA of all species prior to the first speciation event.
 ```{bash}
+#| eval: false
 # we will assume both ancestral states are equally likely
 pi_base <- rep(1,num_ranges)
 pi <- simplex(pi_base)
+pi <- 1
 ```
 
 ## Bringing all rates together:
 
 ```{bash}
+#| eval: false
 # Stochastic variable that describes how processes interact to generate a tree topology, divergence times and terminal taxon ranges.
 # dnGLHBDSP distribution (Generalized Lineage Heterogeneous Birth Death Sampling Process)
 
@@ -295,6 +306,7 @@ timetree.clampCharData(bg_dat)
 ## MCMC
 ### i. setup MCMC parameters
 ```{bash}
+#| eval: false
 n_gen = 1000
 n_burn = 100
 printgen = 10
@@ -302,6 +314,7 @@ printgen = 10
 
 ### ii. moves
 ```{bash}
+#| eval: false
 mvi = 1
 mv[mvi++] = mvScale(rho_w, weight=1)
 mv[mvi++] = mvScale(rho_e, weight=1)
@@ -316,6 +329,7 @@ mv[mvi++] = mvSimplex(m_d_simplex, weight=m_d_simplex.size())
 ### iii. monitors
 
 ```{bash}
+#| eval: false
 mni = 1
 mn[mni++] = mnScreen(printgen=printgen)
 mn[mni++] = mnModel(printgen=printgen, filename=out_fp+"model.log")
@@ -327,6 +341,7 @@ mn[mni++] = mnStochasticCharacterMap(glhbdsp=timetree, printgen=printgen, filena
 ### iv. save range labels to file
 
 ```{bash}
+#| eval: false
 write("index,range\n", file=lbl_fn)
 state_labels = Q_bg.getStateDescriptions()
 for (i in 1:state_labels.size()) {
@@ -338,6 +353,7 @@ for (i in 1:state_labels.size()) {
 
 does not matter which parameter we chose to model, the process will find all other parameters as well. 
 ```{bash}
+#| eval: false
 mdl = model(m_w)
 ch = mcmc(mv, mn, mdl)
 ch.burnin(n_burn, tuningInterval=50)
@@ -348,6 +364,7 @@ ch.run(n_gen)
 
 
 ```{bash}
+#| eval: false
 f_burn = 0.2
 x_stoch = readAncestralStateTrace(file=out_fp+"stoch.log")
 x_states = readAncestralStateTrace(file=out_fp+"states.log")
@@ -362,4 +379,153 @@ state_tree = ancestralStateTree(tree=timetree,
                    nStates=3,
                    site=1)
 writeNexus(state_tree,filename=out_fp+"ase.tre")
+```
+
+
+
+```{r}
+### PART 1: EVALUATE MCMC
+
+library(coda)
+
+
+trace <- read.table(
+  paste0(here::here(), "/data/output/GeoSSE/model.log"),
+  header = TRUE
+)
+
+
+m <- mcmc(trace)
+
+
+burnin_fraction <- 0.25
+start_iter <- floor(burnin_fraction * nrow(trace))
+m_postburn <- window(m, start = start_iter)
+
+
+plot(m_postburn)
+
+
+##### PART 2: PLOT ANCESTRAL STATES ON TREE
+library(ape)
+library(dplyr)
+
+
+tree_file <- paste0(here::here(), "/data/output/GeoSSE/ase.tre")
+tr <- read.nexus(tree_file)
+
+txt <- paste(readLines(tree_file), collapse = " ")
+
+ann <- regmatches(txt, gregexpr("\\[&index=[^\\]]+\\]", txt, perl = TRUE))[[1]]
+
+get_field <- function(x, field) {
+  m <- regexec(paste0(field, "=([^,\\]]+)"), x, perl = TRUE)
+  r <- regmatches(x, m)
+  sapply(r, function(z) if (length(z) >= 2) z[2] else NA_character_)
+}
+
+idx <- as.integer(get_field(ann, "index"))
+end_state_1 <- get_field(ann, "end_state_1")
+end_state_1_pp <- as.numeric(get_field(ann, "end_state_1_pp"))
+
+n_tip <- length(tr$tip.label)
+n_all <- n_tip + tr$Nnode
+
+state_lab <- rep(NA_character_, n_all)
+pp_lab <- rep(NA_real_, n_all)
+
+state_lab[idx] <- end_state_1
+pp_lab[idx] <- end_state_1_pp
+
+state_lab_areas <- case_when(
+  state_lab == "0" ~ "0",
+  state_lab == "1" ~ "A",
+  state_lab == "2" ~ "M",
+  state_lab == "3" ~ "both",
+  TRUE ~ NA_character_
+)
+
+outgroups <- c("Spondianthus_preussii")
+desired_order <- c(setdiff(tr$tip.label, outgroups), outgroups)
+
+tr <- rotateConstr(tr, desired_order)
+tr <- ladderize(tr, right = FALSE)
+
+
+if (is.null(tr$root.time)) {
+  tr$root.time <- max(node.depth.edgelength(tr))
+}
+
+par(mar = c(5, 2, 2, 8), xpd = NA)
+
+plot(
+  tr,
+  show.tip.label = TRUE,
+  cex = 1.1,
+  #label.offset = 0.8,
+  no.margin = FALSE,
+  x.lim = c(0, max(node.depth.edgelength(tr)) * 1.15)
+)
+
+internal_nodes <- (n_tip + 1):(n_tip + tr$Nnode)
+
+nodelabels(
+  text = state_lab_areas[internal_nodes],
+  node = internal_nodes,
+  frame = "none",
+  cex = 1.0,
+  adj = c(-0.15, -0.2)
+)
+
+edge_desc <- tr$edge[, 2]
+internal_edge <- edge_desc > n_tip
+edge_pp <- sprintf("%.2f", pp_lab[edge_desc[internal_edge]])
+
+edgelabels(
+  text = edge_pp,
+  edge = which(internal_edge),
+  frame = "none",
+  cex = 0.9,
+  adj = c(0.8, -0.)
+)
+
+axisPhylo()
+mtext("Time (relative)", side = 1, line = 3)
+
+
+##### PART 3: NICE PLOTS
+library(RevGadgets)
+library(magick)
+library(ggtree)
+library(ggplot2)
+
+
+fp <- paste0(here::here(), "/data/output/GeoSSE/")
+plot_fn <- paste(fp, "range.pdf", sep = "")
+tree_fn <- paste(fp, "ase.tre", sep = "")
+label_fn <- paste(fp, "state_labels.txt", sep = "")
+color_fn <- paste(fp, "range_colors.n4.txt", sep = "")
+
+
+labs <- c("0" = "Afr", "1" = "Mdg", "2" = "both", "3" = "none")
+
+ancstates <- processAncStates(tree_fn, state_labels = labs)
+
+
+pp <- plotAncStatesPie(
+  t = ancstates,
+  tip_labels_size = 5,
+
+  # Include cladogenetic events
+
+  cladogenetic = T,
+
+  # adjust tip labels
+
+  tip_labels_offset = 0.1
+)
+
+pp
+
+ggsave(pp, filename = paste0(here::here(), "figures/final_GeoSSE_ACR.png"))
 ```

@@ -4189,10 +4189,10 @@ already exists</code></pre>
 <span id="cb202-5"><a href="#cb202-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb202-6"><a href="#cb202-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(results_df2))) {</span>
 <span id="cb202-7"><a href="#cb202-7" aria-hidden="true" tabindex="-1"></a>  out1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb202-8"><a href="#cb202-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">1</span>, results_df2<span class="sc">$</span>distance_km[i]),</span>
-<span id="cb202-9"><a href="#cb202-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">M =</span> <span class="fu">c</span>(results_df2<span class="sc">$</span>distance_km[i], <span class="dv">1</span>)</span>
+<span id="cb202-8"><a href="#cb202-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">1</span>, results_df2<span class="sc">$</span>nearest_km[i]),</span>
+<span id="cb202-9"><a href="#cb202-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">M =</span> <span class="fu">c</span>(results_df2<span class="sc">$</span>nearest_km[i], <span class="dv">1</span>)</span>
 <span id="cb202-10"><a href="#cb202-10" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb202-11"><a href="#cb202-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb202-11"><a href="#cb202-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(out1)</span>
 <span id="cb202-12"><a href="#cb202-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
 <span id="cb202-13"><a href="#cb202-13" aria-hidden="true" tabindex="-1"></a>    out1,</span>
 <span id="cb202-14"><a href="#cb202-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">paste0</span>(</span>
@@ -4206,8 +4206,8 @@ already exists</code></pre>
 <span id="cb202-22"><a href="#cb202-22" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb202-23"><a href="#cb202-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb202-24"><a href="#cb202-24" aria-hidden="true" tabindex="-1"></a>  out2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb202-25"><a href="#cb202-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">A =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, results_df2<span class="sc">$</span>distance_km[i])),</span>
-<span id="cb202-26"><a href="#cb202-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">M =</span> <span class="fu">log</span>(<span class="fu">c</span>(results_df2<span class="sc">$</span>distance_km[i], <span class="dv">1</span>))</span>
+<span id="cb202-25"><a href="#cb202-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">A =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, results_df2<span class="sc">$</span>nearest_km[i])),</span>
+<span id="cb202-26"><a href="#cb202-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">M =</span> <span class="fu">log</span>(<span class="fu">c</span>(results_df2<span class="sc">$</span>nearest_km[i], <span class="dv">1</span>))</span>
 <span id="cb202-27"><a href="#cb202-27" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb202-28"><a href="#cb202-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb202-29"><a href="#cb202-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
@@ -4222,15 +4222,62 @@ already exists</code></pre>
 <span id="cb202-38"><a href="#cb202-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
 <span id="cb202-39"><a href="#cb202-39" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb202-40"><a href="#cb202-40" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         A        M
+1   1.0000 447.4678
+2 447.4678   1.0000
+         A        M
+1   1.0000 417.4973
+2 417.4973   1.0000
+         A        M
+1   1.0000 434.2004
+2 434.2004   1.0000
+         A        M
+1   1.0000 405.9195
+2 405.9195   1.0000
+         A        M
+1   1.0000 451.4993
+2 451.4993   1.0000
+         A        M
+1   1.0000 400.2902
+2 400.2902   1.0000
+         A        M
+1   1.0000 421.9636
+2 421.9636   1.0000
+         A        M
+1   1.0000 387.1685
+2 387.1685   1.0000
+         A        M
+1   1.0000 401.4585
+2 401.4585   1.0000
+         A        M
+1   1.0000 424.8481
+2 424.8481   1.0000
+         A        M
+1   1.0000 489.4111
+2 489.4111   1.0000
+         A        M
+1   1.0000 448.3698
+2 448.3698   1.0000
+         A        M
+1   1.0000 515.0815
+2 515.0815   1.0000
+         A        M
+1   1.0000 457.1242
+2 457.1242   1.0000
+        A       M
+1   1.000 802.051
+2 802.051   1.000</code></pre>
+</div>
 </div>
 <p>Categorical variables 1. cw1 = Age Class (0 = old, 1 = young) 2. cb1 = Dispersal Class (0 = short, 1 = long) 3. cw2 = Growth Class (0 = decay, 1 = growth) 4. cb2 = Relative age class (0 = older, 1 = younger)</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb203-1"><a href="#cb203-1" aria-hidden="true" tabindex="-1"></a>results_df2 <span class="ot">&lt;-</span></span>
-<span id="cb203-2"><a href="#cb203-2" aria-hidden="true" tabindex="-1"></a>  results_df <span class="sc">%&gt;%</span></span>
-<span id="cb203-3"><a href="#cb203-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">index =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">15</span>, <span class="at">to =</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb203-4"><a href="#cb203-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(index)</span>
-<span id="cb203-5"><a href="#cb203-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb203-6"><a href="#cb203-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(results_df2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb204"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb204-1"><a href="#cb204-1" aria-hidden="true" tabindex="-1"></a>results_df2 <span class="ot">&lt;-</span></span>
+<span id="cb204-2"><a href="#cb204-2" aria-hidden="true" tabindex="-1"></a>  results_df <span class="sc">%&gt;%</span></span>
+<span id="cb204-3"><a href="#cb204-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">index =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">15</span>, <span class="at">to =</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb204-4"><a href="#cb204-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(index)</span>
+<span id="cb204-5"><a href="#cb204-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb204-6"><a href="#cb204-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(results_df2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 15 × 5
    age_ma africa_area_km2 madagascar_area_km2 nearest_km index
@@ -4256,106 +4303,149 @@ already exists</code></pre>
 <li>cw1 should be 1 for all areas and time slices…</li>
 </ol>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb205-1"><a href="#cb205-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb205-2"><a href="#cb205-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;A&quot;</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
-<span id="cb205-3"><a href="#cb205-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;M&quot;</span> <span class="ot">=</span> <span class="dv">1</span></span>
-<span id="cb205-4"><a href="#cb205-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb205-5"><a href="#cb205-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb205-6"><a href="#cb205-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(ages)) {</span>
-<span id="cb205-7"><a href="#cb205-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
-<span id="cb205-8"><a href="#cb205-8" aria-hidden="true" tabindex="-1"></a>    out,</span>
-<span id="cb205-9"><a href="#cb205-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">paste0</span>(</span>
-<span id="cb205-10"><a href="#cb205-10" aria-hidden="true" tabindex="-1"></a>      here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
-<span id="cb205-11"><a href="#cb205-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;time&quot;</span>,</span>
-<span id="cb205-12"><a href="#cb205-12" aria-hidden="true" tabindex="-1"></a>      i,</span>
-<span id="cb205-13"><a href="#cb205-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;/&quot;</span>,</span>
-<span id="cb205-14"><a href="#cb205-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;cw_feature1.csv&quot;</span></span>
-<span id="cb205-15"><a href="#cb205-15" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb205-16"><a href="#cb205-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb205-17"><a href="#cb205-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb205-18"><a href="#cb205-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb206-1"><a href="#cb206-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb206-2"><a href="#cb206-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;A&quot;</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb206-3"><a href="#cb206-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;M&quot;</span> <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb206-4"><a href="#cb206-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb206-5"><a href="#cb206-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb206-6"><a href="#cb206-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(ages)) {</span>
+<span id="cb206-7"><a href="#cb206-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
+<span id="cb206-8"><a href="#cb206-8" aria-hidden="true" tabindex="-1"></a>    out,</span>
+<span id="cb206-9"><a href="#cb206-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">paste0</span>(</span>
+<span id="cb206-10"><a href="#cb206-10" aria-hidden="true" tabindex="-1"></a>      here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
+<span id="cb206-11"><a href="#cb206-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;time&quot;</span>,</span>
+<span id="cb206-12"><a href="#cb206-12" aria-hidden="true" tabindex="-1"></a>      i,</span>
+<span id="cb206-13"><a href="#cb206-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;/&quot;</span>,</span>
+<span id="cb206-14"><a href="#cb206-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;cw_feature1.csv&quot;</span></span>
+<span id="cb206-15"><a href="#cb206-15" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb206-16"><a href="#cb206-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb206-17"><a href="#cb206-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb206-18"><a href="#cb206-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <ol start="2" type="1">
 <li>cb1 should be dependent on oceanic currents… to do: read up on currents and timings to make a more informed choice!! (26-06-2026)</li>
 </ol>
 <p>…until then let’s go with distance-based. (short if below 401 km - just to see if there is an influence on the outcome)</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb206-1"><a href="#cb206-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(results_df2))) {</span>
-<span id="cb206-2"><a href="#cb206-2" aria-hidden="true" tabindex="-1"></a>  time <span class="ot">&lt;-</span> results_df2[i, ]</span>
-<span id="cb206-3"><a href="#cb206-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb206-4"><a href="#cb206-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (time<span class="sc">$</span>nearest_km <span class="sc">&gt;</span> <span class="dv">401</span>) {</span>
-<span id="cb206-5"><a href="#cb206-5" aria-hidden="true" tabindex="-1"></a>    out1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb206-6"><a href="#cb206-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
-<span id="cb206-7"><a href="#cb206-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">M =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb206-8"><a href="#cb206-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb206-9"><a href="#cb206-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb206-10"><a href="#cb206-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(</span>
-<span id="cb206-11"><a href="#cb206-11" aria-hidden="true" tabindex="-1"></a>      out1,</span>
-<span id="cb206-12"><a href="#cb206-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> <span class="fu">paste0</span>(</span>
-<span id="cb206-13"><a href="#cb206-13" aria-hidden="true" tabindex="-1"></a>        here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
-<span id="cb206-14"><a href="#cb206-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;time&quot;</span>,</span>
-<span id="cb206-15"><a href="#cb206-15" aria-hidden="true" tabindex="-1"></a>        i,</span>
-<span id="cb206-16"><a href="#cb206-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;/&quot;</span>,</span>
-<span id="cb206-17"><a href="#cb206-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;cb_feature1.csv&quot;</span></span>
-<span id="cb206-18"><a href="#cb206-18" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb206-19"><a href="#cb206-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb206-20"><a href="#cb206-20" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb206-21"><a href="#cb206-21" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb206-22"><a href="#cb206-22" aria-hidden="true" tabindex="-1"></a>    out2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb206-23"><a href="#cb206-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb206-24"><a href="#cb206-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">M =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)</span>
-<span id="cb206-25"><a href="#cb206-25" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb206-26"><a href="#cb206-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb206-27"><a href="#cb206-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(</span>
-<span id="cb206-28"><a href="#cb206-28" aria-hidden="true" tabindex="-1"></a>      out2,</span>
-<span id="cb206-29"><a href="#cb206-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> <span class="fu">paste0</span>(</span>
-<span id="cb206-30"><a href="#cb206-30" aria-hidden="true" tabindex="-1"></a>        here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
-<span id="cb206-31"><a href="#cb206-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;time&quot;</span>,</span>
-<span id="cb206-32"><a href="#cb206-32" aria-hidden="true" tabindex="-1"></a>        i,</span>
-<span id="cb206-33"><a href="#cb206-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;/&quot;</span>,</span>
-<span id="cb206-34"><a href="#cb206-34" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;cb_feature1.csv&quot;</span></span>
-<span id="cb206-35"><a href="#cb206-35" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb206-36"><a href="#cb206-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb206-37"><a href="#cb206-37" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb206-38"><a href="#cb206-38" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb206-39"><a href="#cb206-39" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(results_df2))) {</span>
+<span id="cb207-2"><a href="#cb207-2" aria-hidden="true" tabindex="-1"></a>  time <span class="ot">&lt;-</span> results_df2[i, ]</span>
+<span id="cb207-3"><a href="#cb207-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb207-4"><a href="#cb207-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (time<span class="sc">$</span>nearest_km <span class="sc">&gt;</span> <span class="dv">401</span>) {</span>
+<span id="cb207-5"><a href="#cb207-5" aria-hidden="true" tabindex="-1"></a>    out1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb207-6"><a href="#cb207-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb207-7"><a href="#cb207-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">M =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb207-8"><a href="#cb207-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb207-9"><a href="#cb207-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb207-10"><a href="#cb207-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(out1)</span>
+<span id="cb207-11"><a href="#cb207-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb207-12"><a href="#cb207-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(</span>
+<span id="cb207-13"><a href="#cb207-13" aria-hidden="true" tabindex="-1"></a>      out1,</span>
+<span id="cb207-14"><a href="#cb207-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> <span class="fu">paste0</span>(</span>
+<span id="cb207-15"><a href="#cb207-15" aria-hidden="true" tabindex="-1"></a>        here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
+<span id="cb207-16"><a href="#cb207-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;time&quot;</span>,</span>
+<span id="cb207-17"><a href="#cb207-17" aria-hidden="true" tabindex="-1"></a>        i,</span>
+<span id="cb207-18"><a href="#cb207-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;/&quot;</span>,</span>
+<span id="cb207-19"><a href="#cb207-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;cb_feature1.csv&quot;</span></span>
+<span id="cb207-20"><a href="#cb207-20" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb207-21"><a href="#cb207-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb207-22"><a href="#cb207-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb207-23"><a href="#cb207-23" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb207-24"><a href="#cb207-24" aria-hidden="true" tabindex="-1"></a>    out2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb207-25"><a href="#cb207-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb207-26"><a href="#cb207-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">M =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb207-27"><a href="#cb207-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb207-28"><a href="#cb207-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb207-29"><a href="#cb207-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(</span>
+<span id="cb207-30"><a href="#cb207-30" aria-hidden="true" tabindex="-1"></a>      out2,</span>
+<span id="cb207-31"><a href="#cb207-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">file =</span> <span class="fu">paste0</span>(</span>
+<span id="cb207-32"><a href="#cb207-32" aria-hidden="true" tabindex="-1"></a>        here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
+<span id="cb207-33"><a href="#cb207-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;time&quot;</span>,</span>
+<span id="cb207-34"><a href="#cb207-34" aria-hidden="true" tabindex="-1"></a>        i,</span>
+<span id="cb207-35"><a href="#cb207-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;/&quot;</span>,</span>
+<span id="cb207-36"><a href="#cb207-36" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;cb_feature1.csv&quot;</span></span>
+<span id="cb207-37"><a href="#cb207-37" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb207-38"><a href="#cb207-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb207-39"><a href="#cb207-39" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb207-40"><a href="#cb207-40" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb207-41"><a href="#cb207-41" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0
+  A M
+1 0 1
+2 1 0</code></pre>
+</div>
 </div>
 <ol start="3" type="1">
 <li>cw2 will depend only on the area size</li>
 </ol>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(results_df2))) {</span>
-<span id="cb207-2"><a href="#cb207-2" aria-hidden="true" tabindex="-1"></a>  time_i <span class="ot">&lt;-</span></span>
-<span id="cb207-3"><a href="#cb207-3" aria-hidden="true" tabindex="-1"></a>    results_df2[i, ]</span>
-<span id="cb207-4"><a href="#cb207-4" aria-hidden="true" tabindex="-1"></a>  time_i_2 <span class="ot">&lt;-</span></span>
-<span id="cb207-5"><a href="#cb207-5" aria-hidden="true" tabindex="-1"></a>    results_df2[i <span class="sc">+</span> <span class="dv">1</span>, ]</span>
-<span id="cb207-6"><a href="#cb207-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb207-7"><a href="#cb207-7" aria-hidden="true" tabindex="-1"></a>  Afr <span class="ot">&lt;-</span></span>
-<span id="cb207-8"><a href="#cb207-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(time_i<span class="sc">$</span>africa_area_km2 <span class="sc">-</span> time_i_2<span class="sc">$</span>africa_area_km2 <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb207-9"><a href="#cb207-9" aria-hidden="true" tabindex="-1"></a>  Mda <span class="ot">&lt;-</span></span>
-<span id="cb207-10"><a href="#cb207-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(time_i<span class="sc">$</span>madagascar_area_km2 <span class="sc">-</span> time_i_2<span class="sc">$</span>madagascar_area_km2 <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb207-11"><a href="#cb207-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb207-12"><a href="#cb207-12" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span></span>
-<span id="cb207-13"><a href="#cb207-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(Afr, Mda)</span>
-<span id="cb207-14"><a href="#cb207-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb207-15"><a href="#cb207-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (i <span class="sc">==</span> <span class="dv">15</span>) {</span>
-<span id="cb207-16"><a href="#cb207-16" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Afr =</span> <span class="dv">1</span>, <span class="at">Mda =</span> <span class="dv">1</span>)</span>
-<span id="cb207-17"><a href="#cb207-17" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb207-18"><a href="#cb207-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb207-19"><a href="#cb207-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(out)</span>
-<span id="cb207-20"><a href="#cb207-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb207-21"><a href="#cb207-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
-<span id="cb207-22"><a href="#cb207-22" aria-hidden="true" tabindex="-1"></a>    out,</span>
-<span id="cb207-23"><a href="#cb207-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">paste0</span>(</span>
-<span id="cb207-24"><a href="#cb207-24" aria-hidden="true" tabindex="-1"></a>      here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
-<span id="cb207-25"><a href="#cb207-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;time&quot;</span>,</span>
-<span id="cb207-26"><a href="#cb207-26" aria-hidden="true" tabindex="-1"></a>      i,</span>
-<span id="cb207-27"><a href="#cb207-27" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;/&quot;</span>,</span>
-<span id="cb207-28"><a href="#cb207-28" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;cw_feature2.csv&quot;</span></span>
-<span id="cb207-29"><a href="#cb207-29" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb207-30"><a href="#cb207-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb207-31"><a href="#cb207-31" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb207-32"><a href="#cb207-32" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb209-1"><a href="#cb209-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(results_df2))) {</span>
+<span id="cb209-2"><a href="#cb209-2" aria-hidden="true" tabindex="-1"></a>  time_i <span class="ot">&lt;-</span></span>
+<span id="cb209-3"><a href="#cb209-3" aria-hidden="true" tabindex="-1"></a>    results_df2[i, ]</span>
+<span id="cb209-4"><a href="#cb209-4" aria-hidden="true" tabindex="-1"></a>  time_i_2 <span class="ot">&lt;-</span></span>
+<span id="cb209-5"><a href="#cb209-5" aria-hidden="true" tabindex="-1"></a>    results_df2[i <span class="sc">+</span> <span class="dv">1</span>, ]</span>
+<span id="cb209-6"><a href="#cb209-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb209-7"><a href="#cb209-7" aria-hidden="true" tabindex="-1"></a>  Afr <span class="ot">&lt;-</span></span>
+<span id="cb209-8"><a href="#cb209-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(time_i<span class="sc">$</span>africa_area_km2 <span class="sc">-</span> time_i_2<span class="sc">$</span>africa_area_km2 <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb209-9"><a href="#cb209-9" aria-hidden="true" tabindex="-1"></a>  Mda <span class="ot">&lt;-</span></span>
+<span id="cb209-10"><a href="#cb209-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(time_i<span class="sc">$</span>madagascar_area_km2 <span class="sc">-</span> time_i_2<span class="sc">$</span>madagascar_area_km2 <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb209-11"><a href="#cb209-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb209-12"><a href="#cb209-12" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span></span>
+<span id="cb209-13"><a href="#cb209-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(Afr, Mda)</span>
+<span id="cb209-14"><a href="#cb209-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb209-15"><a href="#cb209-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (i <span class="sc">==</span> <span class="dv">15</span>) {</span>
+<span id="cb209-16"><a href="#cb209-16" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Afr =</span> <span class="dv">1</span>, <span class="at">Mda =</span> <span class="dv">1</span>)</span>
+<span id="cb209-17"><a href="#cb209-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb209-18"><a href="#cb209-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb209-19"><a href="#cb209-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(out)</span>
+<span id="cb209-20"><a href="#cb209-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb209-21"><a href="#cb209-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
+<span id="cb209-22"><a href="#cb209-22" aria-hidden="true" tabindex="-1"></a>    out,</span>
+<span id="cb209-23"><a href="#cb209-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">paste0</span>(</span>
+<span id="cb209-24"><a href="#cb209-24" aria-hidden="true" tabindex="-1"></a>      here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
+<span id="cb209-25"><a href="#cb209-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;time&quot;</span>,</span>
+<span id="cb209-26"><a href="#cb209-26" aria-hidden="true" tabindex="-1"></a>      i,</span>
+<span id="cb209-27"><a href="#cb209-27" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;/&quot;</span>,</span>
+<span id="cb209-28"><a href="#cb209-28" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;cw_feature2.csv&quot;</span></span>
+<span id="cb209-29"><a href="#cb209-29" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb209-30"><a href="#cb209-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb209-31"><a href="#cb209-31" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb209-32"><a href="#cb209-32" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Afr Mda
 1   0   0
@@ -4393,65 +4483,65 @@ already exists</code></pre>
 <li>cb2 = Relative age class (0 = older, 1 = younger) … should both be 0</li>
 </ol>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb209-1"><a href="#cb209-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb209-2"><a href="#cb209-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;A&quot;</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
-<span id="cb209-3"><a href="#cb209-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;M&quot;</span> <span class="ot">=</span> <span class="dv">1</span></span>
-<span id="cb209-4"><a href="#cb209-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb209-5"><a href="#cb209-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb209-6"><a href="#cb209-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(ages)) {</span>
-<span id="cb209-7"><a href="#cb209-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
-<span id="cb209-8"><a href="#cb209-8" aria-hidden="true" tabindex="-1"></a>    out,</span>
-<span id="cb209-9"><a href="#cb209-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">paste0</span>(</span>
-<span id="cb209-10"><a href="#cb209-10" aria-hidden="true" tabindex="-1"></a>      here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
-<span id="cb209-11"><a href="#cb209-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;time&quot;</span>,</span>
-<span id="cb209-12"><a href="#cb209-12" aria-hidden="true" tabindex="-1"></a>      i,</span>
-<span id="cb209-13"><a href="#cb209-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;/&quot;</span>,</span>
-<span id="cb209-14"><a href="#cb209-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;cb_feature2.csv&quot;</span></span>
-<span id="cb209-15"><a href="#cb209-15" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb209-16"><a href="#cb209-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb209-17"><a href="#cb209-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb209-18"><a href="#cb209-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb211-1"><a href="#cb211-1" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb211-2"><a href="#cb211-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;A&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb211-3"><a href="#cb211-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;M&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb211-4"><a href="#cb211-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb211-5"><a href="#cb211-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb211-6"><a href="#cb211-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(ages)) {</span>
+<span id="cb211-7"><a href="#cb211-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(</span>
+<span id="cb211-8"><a href="#cb211-8" aria-hidden="true" tabindex="-1"></a>    out,</span>
+<span id="cb211-9"><a href="#cb211-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">paste0</span>(</span>
+<span id="cb211-10"><a href="#cb211-10" aria-hidden="true" tabindex="-1"></a>      here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
+<span id="cb211-11"><a href="#cb211-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;time&quot;</span>,</span>
+<span id="cb211-12"><a href="#cb211-12" aria-hidden="true" tabindex="-1"></a>      i,</span>
+<span id="cb211-13"><a href="#cb211-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;/&quot;</span>,</span>
+<span id="cb211-14"><a href="#cb211-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;cb_feature2.csv&quot;</span></span>
+<span id="cb211-15"><a href="#cb211-15" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb211-16"><a href="#cb211-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb211-17"><a href="#cb211-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb211-18"><a href="#cb211-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Make the feature_summary.csv</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb210-1"><a href="#cb210-1" aria-hidden="true" tabindex="-1"></a>feature_df <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
-<span id="cb210-2"><a href="#cb210-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_index =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>,</span>
-<span id="cb210-3"><a href="#cb210-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature_index =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,</span>
-<span id="cb210-4"><a href="#cb210-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature_relationship =</span> <span class="fu">c</span>(<span class="st">&quot;within&quot;</span>, <span class="st">&quot;between&quot;</span>),</span>
-<span id="cb210-5"><a href="#cb210-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature_type =</span> <span class="fu">c</span>(<span class="st">&quot;categorical&quot;</span>, <span class="st">&quot;quantitative&quot;</span>),</span>
-<span id="cb210-6"><a href="#cb210-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">KEEP.OUT.ATTRS =</span> <span class="cn">FALSE</span></span>
-<span id="cb210-7"><a href="#cb210-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb210-8"><a href="#cb210-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb210-9"><a href="#cb210-9" aria-hidden="true" tabindex="-1"></a>feature_paths <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
-<span id="cb210-10"><a href="#cb210-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">time =</span> <span class="fu">paste0</span>(<span class="st">&quot;time&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>),</span>
-<span id="cb210-11"><a href="#cb210-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">prefix =</span> <span class="fu">c</span>(<span class="st">&quot;cw&quot;</span>, <span class="st">&quot;qw&quot;</span>, <span class="st">&quot;cb&quot;</span>, <span class="st">&quot;qb&quot;</span>),</span>
-<span id="cb210-12"><a href="#cb210-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature =</span> <span class="fu">paste0</span>(<span class="st">&quot;feature&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>),</span>
-<span id="cb210-13"><a href="#cb210-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">KEEP.OUT.ATTRS =</span> <span class="cn">FALSE</span></span>
-<span id="cb210-14"><a href="#cb210-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb210-15"><a href="#cb210-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb210-16"><a href="#cb210-16" aria-hidden="true" tabindex="-1"></a>feature_paths<span class="sc">$</span>feature_path <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
-<span id="cb210-17"><a href="#cb210-17" aria-hidden="true" tabindex="-1"></a>  feature_paths,</span>
-<span id="cb210-18"><a href="#cb210-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;./data/output/paleo/&quot;</span>, time, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;_&quot;</span>, feature, <span class="st">&quot;.csv&quot;</span>)</span>
-<span id="cb210-19"><a href="#cb210-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb210-20"><a href="#cb210-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb210-21"><a href="#cb210-21" aria-hidden="true" tabindex="-1"></a>feature_df <span class="ot">&lt;-</span> feature_df[, <span class="fu">c</span>(</span>
-<span id="cb210-22"><a href="#cb210-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;time_index&quot;</span>,</span>
-<span id="cb210-23"><a href="#cb210-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;feature_index&quot;</span>,</span>
-<span id="cb210-24"><a href="#cb210-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;feature_relationship&quot;</span>,</span>
-<span id="cb210-25"><a href="#cb210-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;feature_type&quot;</span></span>
-<span id="cb210-26"><a href="#cb210-26" aria-hidden="true" tabindex="-1"></a>)]</span>
-<span id="cb210-27"><a href="#cb210-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb210-28"><a href="#cb210-28" aria-hidden="true" tabindex="-1"></a>feature_df<span class="sc">$</span>feature_path <span class="ot">&lt;-</span> feature_paths[<span class="st">&quot;feature_path&quot;</span>]</span>
-<span id="cb210-29"><a href="#cb210-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb210-30"><a href="#cb210-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb210-31"><a href="#cb210-31" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(</span>
-<span id="cb210-32"><a href="#cb210-32" aria-hidden="true" tabindex="-1"></a>  feature_df,</span>
-<span id="cb210-33"><a href="#cb210-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="fu">paste0</span>(</span>
-<span id="cb210-34"><a href="#cb210-34" aria-hidden="true" tabindex="-1"></a>    here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo//&quot;</span>),</span>
-<span id="cb210-35"><a href="#cb210-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;feature_summary.csv&quot;</span></span>
-<span id="cb210-36"><a href="#cb210-36" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb210-37"><a href="#cb210-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
-<span id="cb210-38"><a href="#cb210-38" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb212-1"><a href="#cb212-1" aria-hidden="true" tabindex="-1"></a>feature_df <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb212-2"><a href="#cb212-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_index =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>,</span>
+<span id="cb212-3"><a href="#cb212-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature_index =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,</span>
+<span id="cb212-4"><a href="#cb212-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature_relationship =</span> <span class="fu">c</span>(<span class="st">&quot;within&quot;</span>, <span class="st">&quot;between&quot;</span>),</span>
+<span id="cb212-5"><a href="#cb212-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature_type =</span> <span class="fu">c</span>(<span class="st">&quot;categorical&quot;</span>, <span class="st">&quot;quantitative&quot;</span>),</span>
+<span id="cb212-6"><a href="#cb212-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">KEEP.OUT.ATTRS =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb212-7"><a href="#cb212-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb212-8"><a href="#cb212-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb212-9"><a href="#cb212-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb212-10"><a href="#cb212-10" aria-hidden="true" tabindex="-1"></a>feature_df<span class="sc">$</span>prefix <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb212-11"><a href="#cb212-11" aria-hidden="true" tabindex="-1"></a>  feature_df,</span>
+<span id="cb212-12"><a href="#cb212-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(</span>
+<span id="cb212-13"><a href="#cb212-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(feature_type <span class="sc">==</span> <span class="st">&quot;categorical&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;q&quot;</span>),</span>
+<span id="cb212-14"><a href="#cb212-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(feature_relationship <span class="sc">==</span> <span class="st">&quot;within&quot;</span>, <span class="st">&quot;w&quot;</span>, <span class="st">&quot;b&quot;</span>)</span>
+<span id="cb212-15"><a href="#cb212-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb212-16"><a href="#cb212-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb212-17"><a href="#cb212-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb212-18"><a href="#cb212-18" aria-hidden="true" tabindex="-1"></a>feature_df<span class="sc">$</span>feature_path <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb212-19"><a href="#cb212-19" aria-hidden="true" tabindex="-1"></a>  feature_df,</span>
+<span id="cb212-20"><a href="#cb212-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(</span>
+<span id="cb212-21"><a href="#cb212-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;./data/output/paleo/time&quot;</span>,</span>
+<span id="cb212-22"><a href="#cb212-22" aria-hidden="true" tabindex="-1"></a>    time_index,</span>
+<span id="cb212-23"><a href="#cb212-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/&quot;</span>,</span>
+<span id="cb212-24"><a href="#cb212-24" aria-hidden="true" tabindex="-1"></a>    prefix,</span>
+<span id="cb212-25"><a href="#cb212-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;_feature&quot;</span>,</span>
+<span id="cb212-26"><a href="#cb212-26" aria-hidden="true" tabindex="-1"></a>    feature_index,</span>
+<span id="cb212-27"><a href="#cb212-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;.csv&quot;</span></span>
+<span id="cb212-28"><a href="#cb212-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb212-29"><a href="#cb212-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb212-30"><a href="#cb212-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb212-31"><a href="#cb212-31" aria-hidden="true" tabindex="-1"></a>feature_df<span class="sc">$</span>prefix <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb212-32"><a href="#cb212-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb212-33"><a href="#cb212-33" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(</span>
+<span id="cb212-34"><a href="#cb212-34" aria-hidden="true" tabindex="-1"></a>  feature_df,</span>
+<span id="cb212-35"><a href="#cb212-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/output/paleo/feature_summary.csv&quot;</span>),</span>
+<span id="cb212-36"><a href="#cb212-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb212-37"><a href="#cb212-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">quote =</span> <span class="cn">FALSE</span></span>
+<span id="cb212-38"><a href="#cb212-38" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>

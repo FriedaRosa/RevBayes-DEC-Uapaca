@@ -855,10 +855,10 @@ results_df2 <-
 
 for (i in seq_len(nrow(results_df2))) {
   out1 <- data.frame(
-    A = c(1, results_df2$distance_km[i]),
-    M = c(results_df2$distance_km[i], 1)
+    A = c(1, results_df2$nearest_km[i]),
+    M = c(results_df2$nearest_km[i], 1)
   )
-
+  print(out1)
   write.csv(
     out1,
     file = paste0(
@@ -872,8 +872,8 @@ for (i in seq_len(nrow(results_df2))) {
   )
 
   out2 <- data.frame(
-    A = log(c(1, results_df2$distance_km[i])),
-    M = log(c(results_df2$distance_km[i], 1))
+    A = log(c(1, results_df2$nearest_km[i])),
+    M = log(c(results_df2$nearest_km[i], 1))
   )
 
   write.csv(
@@ -941,6 +941,8 @@ for (i in seq_len(nrow(results_df2))) {
       A = c(0, 1),
       M = c(1, 0)
     )
+
+    print(out1)
 
     write.csv(
       out1,
@@ -1017,8 +1019,8 @@ for (i in seq_len(nrow(results_df2))) {
 
 ```{r}
 out <- data.frame(
-  "A" = 1,
-  "M" = 1
+  "A" = c(1, 1),
+  "M" = c(1, 1)
 )
 
 for (i in seq_along(ages)) {
@@ -1046,37 +1048,37 @@ feature_df <- expand.grid(
   feature_index = 1:2,
   feature_relationship = c("within", "between"),
   feature_type = c("categorical", "quantitative"),
-  KEEP.OUT.ATTRS = FALSE
+  KEEP.OUT.ATTRS = FALSE,
+  stringsAsFactors = FALSE
 )
 
-feature_paths <- expand.grid(
-  time = paste0("time", 1:15),
-  prefix = c("cw", "qw", "cb", "qb"),
-  feature = paste0("feature", 1:2),
-  KEEP.OUT.ATTRS = FALSE
+feature_df$prefix <- with(
+  feature_df,
+  paste0(
+    ifelse(feature_type == "categorical", "c", "q"),
+    ifelse(feature_relationship == "within", "w", "b")
+  )
 )
 
-feature_paths$feature_path <- with(
-  feature_paths,
-  paste0("./data/output/paleo/", time, "/", prefix, "_", feature, ".csv")
+feature_df$feature_path <- with(
+  feature_df,
+  paste0(
+    "./data/output/paleo/time",
+    time_index,
+    "/",
+    prefix,
+    "_feature",
+    feature_index,
+    ".csv"
+  )
 )
 
-feature_df <- feature_df[, c(
-  "time_index",
-  "feature_index",
-  "feature_relationship",
-  "feature_type"
-)]
-
-feature_df$feature_path <- feature_paths["feature_path"]
-
+feature_df$prefix <- NULL
 
 write.csv(
   feature_df,
-  file = paste0(
-    here::here("data/output/paleo//"),
-    "feature_summary.csv"
-  ),
-  row.names = FALSE
+  file = here::here("data/output/paleo/feature_summary.csv"),
+  row.names = FALSE,
+  quote = FALSE
 )
 ```
