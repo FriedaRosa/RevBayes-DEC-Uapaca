@@ -1,0 +1,1082 @@
+---
+title: "Get Paleo Biogeographic data for Africa and Madagascar"
+author: Friederike Wölke
+date: 2026-06-26
+format: html
+embed-resources: true
+standalone: true
+toc: true
+---
+
+
+## Description:
+
+In order to use biogeoraphic features of Africa and Madagascar to build our feature-informed biogeogeraphic (FIG) model in [RevBayes]{.smallcaps} we need some information about our study areas back in time. These features are: - Area (km\^2) - Distance between Areas (km)
+
+Luckily there are paleo datasets freely available through the [chronosphere]{.smallcaps} R package that we can use with the [rgplates]{.smallcaps} R package to reconstruct paleocostlines back in time to estimate these features.
+
+```{r}
+citation("chronosphere")
+citation("rgplates")
+```
+
+### 1. Set up R environment for Paleogeographic reconstructions
+
+```{r}
+#| label: setup-r-libraries
+# set up list of R packages we need for this
+pckgs <- c(
+  "rgplates",
+  "geojsonsf",
+  "chronosphere",
+  "via",
+  "sf",
+  "dplyr",
+  "ggplot2",
+  "purrr",
+  "units",
+  "rnaturalearth"
+)
+
+# load packages and install them if they are not already there
+x <-
+  lapply(pckgs, function(pkg) {
+    if (!require(pkg, character.only = TRUE)) {
+      install.packages(pkg)
+    }
+  })
+
+rm(x)
+```
+
+### 2. Download Paleo-Data
+
+[chronosphere]{.smallcaps} is a package that provides access to many version-controlled databases.
+
+Here I use it to retrieve the paleo data. Specifically, I download the paleo coastlines to ensure that we can measure the actual reconstructed landmass areas instead of just the rotated present-day areas. Luckily we can get them from the PALEOMap database.
+
+```{r}
+#| label: download-paleomap
+#| messages: false
+
+paleo_coasts <-
+  chronosphere::fetch(
+    src = "paleomap",
+    ser = "paleocoastlines",
+    verbose = FALSE
+  )
+```
+
+The PaleoMap database is a collection of shapefiles, so we need to select those that we need for our feature estimation. Here is how it looks:
+We have "margin" and "coast"  as columns in the SfcArray. "margin"-files are the continantal plate margins while "coast"-files are the paleo coastlines that take into account sea level changes. We need the "coast" shapefiles. These come in time-steps of 5 Ma (with some exceptions).
+
+```{r}
+#| label: select-time-slices
+paleo_coasts
+
+ages <- c(
+  "80",
+  "70",
+  "65",
+  "60",
+  "50",
+  "45",
+  "40",
+  "35",
+  "30",
+  "25",
+  "20",
+  "15",
+  "10",
+  "5",
+  "0"
+)
+
+# initalize empty list to save the selected time slices
+paleo_coasts_list <-
+  vector("list", length(ages))
+
+for (i in seq_along(ages)) {
+  age <-
+    ages[i]
+
+  pc <-
+    sf::st_sf(geometry = paleo_coasts[age, "coast"])
+
+  plot(pc, main = age)
+
+  pc["time_slice"] <-
+    age
+  paleo_coasts_list[[i]] <-
+    pc
+}
+```
+
+### 3. Identify Madagascar and Africa in Paleo reconstructions
+This is a bit tideous because I cannot automatically match Africa and Madgaascar to the shapefiles through time. Instead I'm exploding the multiploygons from the shapefiles into single polygons, assing them individual ids, plot each reconstruction colored by polygon id and extract the polygon_ids for Africa and Madagascar. For Africa I   can automatize it [WIP]
+
+```{r}
+#| label: extract-africa-1
+# Africa automatization:
+world <- rnaturalearth::ne_countries(
+  scale = "large",
+  returnclass = "sf"
+)
+sf_use_s2(TRUE)
+africa_now <- world %>%
+  filter(continent == "Africa" & admin != "Madagascar") %>%
+  sf::st_make_valid() %>%
+  summarise(region = "Africa") %>%
+  sf::st_transform(6933) %>%
+  sf::st_buffer(100 * 1000) %>%
+  sf::st_transform(4326) %>%
+  sf::st_make_valid()
+```
+
+```{r}
+#| label: extract-africa-2
+afr_list <- vector("list", length(paleo_coasts_list))
+sf_use_s2(FALSE)
+for (i in seq_along(paleo_coasts_list)) {
+  africa <-
+    paleo_coasts_list[[i]] %>%
+    sf::st_cast("POLYGON") %>%
+    sf::st_intersection(africa_now) %>%
+    mutate(area = as.numeric(sf::st_area(geometry)) / 1000) %>%
+    arrange(desc(area)) %>%
+    mutate(poly_id = row_number()) %>%
+    slice_max(area) %>%
+    summarize(region = "Africa", time_slice = unique(time_slice))
+
+  afr_list[[i]] <-
+    africa
+
+  plot(africa)
+  title(i)
+}
+
+
+# Fix the first time slice where Africa is separated into two parts
+afr_list[[1]] %>% plot()
+
+africa <-
+  paleo_coasts_list[[1]] %>%
+  sf::st_intersection(africa_now) %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(area = as.numeric(sf::st_area(geometry)) / 1000) %>%
+  arrange(desc(area)) %>%
+  mutate(poly_id = row_number()) %>%
+  slice_head(n = 2) %>%
+  summarize(region = "Africa", time_slice = unique(time_slice))
+
+plot(africa)
+
+afr_list[[1]] <-
+  africa
+```
+
+
+Madagascar:
+
+```{r}
+# Empty vector
+mda_list <-
+  vector("list", length(paleo_coasts_list))
+```
+```{r}
+# chose list element
+i <- 1
+
+# extract list element
+pc <-
+  paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+# plot zoomed map with ids
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+# chose id
+id <- 30
+# check plot
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+# save to list
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+# chose list element
+i <- 2
+
+# extract list element
+pc <-
+  paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+# plot zoomed map with ids
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+# chose id
+id <- 40
+
+# check plot
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+# save to list
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+
+i <- 3
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+id <- 25
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+
+```{r}
+i <- 4
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+id <- 46
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+
+```{r}
+
+i <- 5
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+id <- 74
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+
+```{r}
+
+i <- 6
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+id <- 64
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+
+i <- 7
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 62
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+
+```{r}
+
+i <- 8
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 37
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+i <- 9
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 37
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+
+```{r}
+i <- 10
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 28
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+i <- 11
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 34
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+i <- 12
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 40
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+i <- 13
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 34
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+i <- 14
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 39
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+i <- 15
+
+
+pc <- paleo_coasts_list[[i]] %>%
+  sf::st_cast("POLYGON") %>%
+  mutate(poly_id = row_number())
+
+ggplot(pc) +
+  geom_sf(aes(fill = factor(poly_id)), color = "grey20", linewidth = 0.2) +
+  geom_sf_text(aes(label = poly_id), size = 3, check_overlap = TRUE) +
+  scale_fill_viridis_d(name = "poly_id") +
+  coord_sf(
+    xlim = c(-30, 80),
+    ylim = c(-50, 45),
+    expand = FALSE
+  ) +
+  theme_bw()
+
+
+id <- 58
+
+pc %>%
+  filter(poly_id == id) %>%
+  plot()
+
+mda_list[[i]] <-
+  pc %>%
+  filter(poly_id == id) %>%
+  summarize(region = "Madagascar", time_slice = unique(time_slice))
+```
+
+```{r}
+# let's save this for later reference
+madagascar_extraction_df <-
+  data.frame(
+    time_slice = seq(1:15),
+    id = c(30, 40, 25, 46, 74, 64, 62, 37, 37, 28, 34, 40, 34, 39, 58),
+    ages
+  )
+```
+
+### 4. Calculate Area and Distances
+To get more or less accurate estimations of area and distance we have to project the data to an equal area projection (spherical)
+
+
+```{r}
+# our two lists are:
+# mda_list
+# afr_list
+
+aea <- 6933
+
+sf_use_s2(TRUE) # use spherical geometry package
+
+results <- vector("list", length(ages))
+
+for (i in seq_along(ages)) {
+  age <- ages[i]
+
+  message("Processing ", age, " Ma")
+  # Area
+
+  ## Africa:
+
+  africa_i_ea <- afr_list[[i]] %>%
+    sf::st_transform(aea)
+
+  africa_area_km2 <-
+    africa_i_ea %>%
+    st_area() %>%
+    as.numeric() /
+    1e6
+
+  ## Madagascar
+
+  madagascar_i_ea <- mda_list[[i]] %>%
+    sf::st_transform(aea)
+
+  madagascar_area_km2 <-
+    madagascar_i_ea %>%
+    st_area() %>%
+    as.numeric() /
+    1e6
+
+  # Distance
+
+  ## Distance between nearest points:
+  nearest <-
+    st_nearest_points(africa_i_ea, madagascar_i_ea)
+
+  ## Plot the distance:
+  plot(st_geometry(africa_i_ea), col = "grey")
+  plot(st_geometry(madagascar_i_ea), col = "forestgreen", add = TRUE)
+  plot(nearest, col = "red", lwd = 2, add = TRUE)
+
+  ## Convert to km
+  nearest_km <- as.numeric(st_length(nearest)) / 1000
+
+  # save to results dataframe
+  results[[i]] <-
+    data.frame(
+      age_ma = age,
+      africa_area_km2 = africa_area_km2,
+      madagascar_area_km2 = madagascar_area_km2,
+      nearest_km = nearest_km
+    )
+}
+
+results_df <- bind_rows(results)
+results_df
+```
+
+### 5. Convert to FIG-model format
+
+1. Age_summary.csv
+
+```{r}
+age_summary <-
+  data.frame(
+    index = seq(from = 15, to = 1),
+    end_age = as.numeric(results_df$age_ma),
+    feature_dir = paste0("time", seq(from = 15, to = 1))
+  ) %>%
+  arrange(index)
+
+
+age_summary2 <-
+  age_summary %>%
+  data.frame(
+    start_age = age_summary$end_age + 5
+  ) %>%
+  mutate(mean_age = (age_summary$end_age + start_age) / 2)
+
+
+age_summary2 <-
+  age_summary2 %>%
+  select(index, mean_age, start_age, end_age, feature_dir)
+```
+
+
+```{r}
+write.csv(
+  age_summary2,
+  here::here("data/output/paleo/age_summary.csv"),
+  row.names = FALSE
+)
+```
+
+2. qualitative within-region area size qw_feature1.csv and log-transformed qw_feature2.csv
+
+```{r}
+for (i in seq_along(ages)) {
+  dir.create(paste0(here::here("data/output/paleo//"), "time", i))
+}
+```
+
+ qw =  qualitative within-region feature (area)
+ qw1 = untransformed area
+ qw2 = log(area)
+```{r}
+results_df2 <-
+  results_df %>%
+  mutate(index = seq(from = 15, to = 1)) %>%
+  arrange(index)
+
+for (i in seq_len(nrow(results_df2))) {
+  out1 <- data.frame(
+    A = results_df2$africa_area_km2[i],
+    M = results_df2$madagascar_area_km2[i]
+  )
+
+  write.csv(
+    out1,
+    file = paste0(
+      here::here("data/output/paleo//"),
+      "time",
+      i,
+      "/",
+      "qw_feature1.csv"
+    ),
+    row.names = FALSE
+  )
+
+  out2 <-
+    data.frame(
+      A = log(results_df2$africa_area_km2[i]),
+      M = log(results_df2$madagascar_area_km2[i])
+    )
+
+  write.csv(
+    out2,
+    file = paste0(
+      here::here("data/output/paleo//"),
+      "time",
+      i,
+      "/",
+      "qw_feature2.csv"
+    ),
+    row.names = FALSE
+  )
+}
+```
+
+3. qualitative between-region distance qb_feature1.csv and log-transformed qb_feature2.csv
+ qb =  qualitative between-region feature (distance)
+ qb1 = untransformed distance
+ qb2 = log(distance)
+```{r}
+results_df2 <-
+  results_df %>%
+  mutate(index = seq(from = 15, to = 1)) %>%
+  arrange(index)
+
+for (i in seq_len(nrow(results_df2))) {
+  out1 <- data.frame(
+    A = c(1, results_df2$distance_km[i]),
+    M = c(results_df2$distance_km[i], 1)
+  )
+
+  write.csv(
+    out1,
+    file = paste0(
+      here::here("data/output/paleo//"),
+      "time",
+      i,
+      "/",
+      "qb_feature1.csv"
+    ),
+    row.names = FALSE
+  )
+
+  out2 <- data.frame(
+    A = log(c(1, results_df2$distance_km[i])),
+    M = log(c(results_df2$distance_km[i], 1))
+  )
+
+  write.csv(
+    out2,
+    file = paste0(
+      here::here("data/output/paleo//"),
+      "time",
+      i,
+      "/",
+      "qb_feature2.csv"
+    ),
+    row.names = FALSE
+  )
+}
+```
+
+Categorical variables
+1. cw1 = Age Class (0 =   old, 1 = young)
+2. cb1 = Dispersal Class (0 =    short, 1 =  long)
+3. cw2 = Growth Class (0 =   decay, 1 =  growth)
+4. cb2 = Relative age class (0 = older, 1 = younger)
+
+```{r}
+results_df2 <-
+  results_df %>%
+  mutate(index = seq(from = 15, to = 1)) %>%
+  arrange(index)
+
+tibble(results_df2)
+```
+
+1. cw1 should be 1 for all areas and time slices...
+
+```{r}
+out <- data.frame(
+  "A" = 1,
+  "M" = 1
+)
+
+for (i in seq_along(ages)) {
+  write.csv(
+    out,
+    file = paste0(
+      here::here("data/output/paleo//"),
+      "time",
+      i,
+      "/",
+      "cw_feature1.csv"
+    ),
+    row.names = FALSE
+  )
+}
+```
+
+2. cb1 should be dependent on oceanic currents... 
+to do: read up on currents and timings to make a more informed choice!! (26-06-2026)
+
+...until then let's go with distance-based. (short if below 401 km - just to see if there is an influence on the outcome)
+```{r}
+for (i in seq_len(nrow(results_df2))) {
+  time <- results_df2[i, ]
+
+  if (time$nearest_km > 401) {
+    out1 <- data.frame(
+      A = c(0, 1),
+      M = c(1, 0)
+    )
+
+    write.csv(
+      out1,
+      file = paste0(
+        here::here("data/output/paleo//"),
+        "time",
+        i,
+        "/",
+        "cb_feature1.csv"
+      ),
+      row.names = FALSE
+    )
+  } else {
+    out2 <- data.frame(
+      A = c(0, 0),
+      M = c(0, 0)
+    )
+
+    write.csv(
+      out2,
+      file = paste0(
+        here::here("data/output/paleo//"),
+        "time",
+        i,
+        "/",
+        "cb_feature1.csv"
+      ),
+      row.names = FALSE
+    )
+  }
+}
+```
+
+3. cw2 will depend only on the area size
+```{r}
+
+for (i in seq_len(nrow(results_df2))) {
+  time_i <-
+    results_df2[i, ]
+  time_i_2 <-
+    results_df2[i + 1, ]
+
+  Afr <-
+    ifelse(time_i$africa_area_km2 - time_i_2$africa_area_km2 < 0, 0, 1)
+  Mda <-
+    ifelse(time_i$madagascar_area_km2 - time_i_2$madagascar_area_km2 < 0, 0, 1)
+
+  out <-
+    data.frame(Afr, Mda)
+
+  if (i == 15) {
+    out <- data.frame(Afr = 1, Mda = 1)
+  }
+
+  print(out)
+
+  write.csv(
+    out,
+    file = paste0(
+      here::here("data/output/paleo//"),
+      "time",
+      i,
+      "/",
+      "cw_feature2.csv"
+    ),
+    row.names = FALSE
+  )
+}
+```
+
+4. cb2 = Relative age class (0 = older, 1 = younger)
+... should both be 0
+
+
+```{r}
+out <- data.frame(
+  "A" = 1,
+  "M" = 1
+)
+
+for (i in seq_along(ages)) {
+  write.csv(
+    out,
+    file = paste0(
+      here::here("data/output/paleo//"),
+      "time",
+      i,
+      "/",
+      "cb_feature2.csv"
+    ),
+    row.names = FALSE
+  )
+}
+```
+
+Make the feature_summary.csv
+
+
+```{r}
+
+feature_df <- expand.grid(
+  time_index = 1:15,
+  feature_index = 1:2,
+  feature_relationship = c("within", "between"),
+  feature_type = c("categorical", "quantitative"),
+  KEEP.OUT.ATTRS = FALSE
+)
+
+feature_paths <- expand.grid(
+  time = paste0("time", 1:15),
+  prefix = c("cw", "qw", "cb", "qb"),
+  feature = paste0("feature", 1:2),
+  KEEP.OUT.ATTRS = FALSE
+)
+
+feature_paths$feature_path <- with(
+  feature_paths,
+  paste0("./data/output/paleo/", time, "/", prefix, "_", feature, ".csv")
+)
+
+feature_df <- feature_df[, c(
+  "time_index",
+  "feature_index",
+  "feature_relationship",
+  "feature_type"
+)]
+
+feature_df$feature_path <- feature_paths["feature_path"]
+
+
+write.csv(
+  feature_df,
+  file = paste0(
+    here::here("data/output/paleo//"),
+    "feature_summary.csv"
+  ),
+  row.names = FALSE
+)
+```
