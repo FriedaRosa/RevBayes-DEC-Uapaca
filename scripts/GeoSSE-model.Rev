@@ -1,0 +1,263 @@
+loadPlugin("TensorPhylo")
+
+
+# Set Variables with filepaths (fp)
+dat_fp = "./data/input/"
+out_fp = "./data/output/GeoSSE/"
+bg_fn  = dat_fp + "Uapaca_range.nex"
+phy_fn = "./data/output/divtime_uncalibrated/divtime_uncalibrated.mcc.tre"
+lbl_fn = out_fp + "range_state_labels.txt"
+
+
+
+# Read the tree
+phy <- readTrees(phy_fn)[1]
+
+# save some information about the phylogeny
+tree_height <- phy.rootAge()
+taxa = phy.taxa()
+num_taxa = taxa.size()
+
+
+
+# Biogeographic (Range) data
+bg_01 = readDiscreteCharacterData(bg_fn)
+
+# save some information about the ranges
+num_regions = bg_01.nchar()
+num_ranges = abs(2^num_regions - 1)
+num_pairs = num_regions^2 - num_regions
+
+# Convert the ranges into GeoSSE format
+bg_dat = formatDiscreteCharacterData(bg_01, format="GeoSSE", numStates=num_ranges)
+
+
+
+
+## Setup the model
+
+
+
+
+### i. within-region speciation (w)
+# stochastic rho_x will be drawn from exponential distribution
+rho_w ~ dnExp(1)
+
+# stochastic relative parameters will be drawn from Dirichlet
+m_w_simplex ~ dnDirichlet(rep(1,num_regions))
+
+# determinisitc relative rates for each region
+m_w := m_w_simplex * num_regions
+
+# determinisitc absolute rates for each region
+r_w := rho_w * m_w
+
+
+
+### ii. local extinction (e)
+# stochastic rho_x will be drawn from exponential distribution
+rho_e ~ dnExp(1)
+
+# stochastic relative parameters will be drawn from Dirichlet
+m_e_simplex ~ dnDirichlet(rep(1,num_regions))
+
+# determinisitc relative rates for each region
+m_e := m_e_simplex * num_regions
+
+# determinisitc absolute rates for each region
+r_e := rho_e * m_e
+
+
+
+### iii. global extinction (mu)
+for (i in 1:num_ranges) {
+    mu[i] <- 0.0
+    if (i <= num_regions) {
+        mu[i] := r_e[i]
+    }
+}
+
+
+
+### iv. between-region speciation (b)
+# exponential base rate
+rho_b ~ dnExp(1)
+
+# stochastic relative rate
+m_b_simplex ~ dnDirichlet(rep(1,num_pairs/2))
+
+# counter for loop
+m_b_idx = 1
+for (i in 1:num_regions) {
+    m_b[i][i] <- 0.0
+    for (j in 1:num_regions) {
+        if (i < j) {
+            m_b[i][j] := abs(m_b_simplex[m_b_idx] * num_pairs)
+            m_b[j][i] := abs(m_b_simplex[m_b_idx] * num_pairs)
+            m_b_idx += 1
+        }
+        r_b[i][j] := rho_b * m_b[i][j]
+    }
+}
+
+
+
+### v. dispersal (d)
+# base rate
+rho_d ~ dnExp(1)
+
+# relative dispersal rate
+m_d_simplex ~ dnDirichlet(rep(1,num_pairs))
+
+# counter for loop
+m_d_idx = 1
+for (i in 1:num_regions) {
+    m_d[i][i] <- 0.0
+    for (j in 1:num_regions) {
+        if (i != j) {
+            m_d[i][j] := abs(m_d_simplex[m_d_idx++] * num_pairs)
+        }
+        r_d[i][j] := rho_d * m_d[i][j]
+    }
+}
+
+
+
+
+## Construct the rate matrices
+
+
+
+
+### i. Anagenetic rate matrix
+Q_bg := fnBiogeographyRateMatrix(
+    dispersalRates=r_d,
+    extirpationRates=r_e,
+    maxRangeSize=num_regions
+)
+
+
+
+### ii. Cladogenetic rate matrix
+clado_map := fnBiogeographyCladoEventsBD(
+    speciation_rates=[rho_w,rho_b],
+    within_region_features=m_w,
+    between_region_features=m_b,
+    max_range_size=num_regions,
+    max_subrange_split_size=num_regions
+)
+
+# Speciation rates per state:
+lambda := clado_map.getSpeciationRateSumPerState()
+
+# Cladogenetic probability matrix: 
+omega := clado_map.getCladogeneticProbabilityMatrix()
+
+
+
+
+
+### iii. MRCA state
+
+# we will assume both ancestral states are equally likely
+pi_base <- rep(1,num_ranges)
+pi <- simplex(pi_base)
+
+
+
+
+## Bringing all rates together:
+
+# dnGLHBDSP distribution (Generalized Lineage Heterogeneous Birth Death Sampling Process)
+
+timetree ~ dnGLHBDSP(
+    rootAge     = tree_height,
+    lambda      = lambda,
+    mu          = mu,
+    eta         = Q_bg,
+    omega       = omega,
+    pi          = pi,
+    rho         = 1.0,
+    condition   = "time",    
+    taxa        = taxa,
+    nStates     = num_ranges,
+    nProc       = 4         
+)
+
+# infer model parameters from our observed data: 
+timetree.clamp(phy)
+timetree.clampCharData(bg_dat)
+
+
+
+
+
+
+
+## MCMC
+
+
+### i. setup MCMC parameters
+n_gen = 10000
+n_burn = 100
+printgen = 10
+
+
+### ii. moves
+mvi = 1
+mv[mvi++] = mvScale(rho_w, weight=1)
+mv[mvi++] = mvScale(rho_e, weight=1)
+mv[mvi++] = mvScale(rho_b, weight=1)
+mv[mvi++] = mvScale(rho_d, weight=1)
+mv[mvi++] = mvSimplex(m_e_simplex, weight=m_e.size())
+mv[mvi++] = mvSimplex(m_w_simplex, weight=m_w.size())
+mv[mvi++] = mvSimplex(m_b_simplex, weight=m_b_simplex.size())
+mv[mvi++] = mvSimplex(m_d_simplex, weight=m_d_simplex.size())
+
+
+
+
+### iii. monitors
+mni = 1
+mn[mni++] = mnScreen(printgen=printgen)
+mn[mni++] = mnModel(printgen=printgen, filename=out_fp+"model.log")
+mn[mni++] = mnJointConditionalAncestralState(glhbdsp=timetree, tree=timetree, printgen=printgen, filename=out_fp+"states.log", withTips=true, withStartStates=true, type="NaturalNumbers")
+mn[mni++] = mnStochasticCharacterMap(glhbdsp=timetree, printgen=printgen, filename=out_fp+"stoch.log")
+
+
+
+
+### iv. save range labels to file
+write("index,range\n", file=lbl_fn)
+state_labels = Q_bg.getStateDescriptions()
+for (i in 1:state_labels.size()) {
+    write( (i-1), ",", state_labels[i], "\n", file=lbl_fn, append=true, separator="")
+}
+
+
+
+### v. set up model 
+mdl = model(m_d)
+ch = mcmc(mv, mn, mdl, ntries=100000)
+ch.burnin(n_burn, tuningInterval=50)
+ch.run(n_gen)
+
+
+
+
+
+## Summarize ancestral states
+f_burn = 0.2
+x_stoch = readAncestralStateTrace(file=out_fp+"stoch.log")
+x_states = readAncestralStateTrace(file=out_fp+"states.log")
+summarizeCharacterMaps(x_stoch,timetree,file=out_fp+"events.tsv",burnin=f_burn)
+state_tree = ancestralStateTree(tree=timetree,
+                   ancestral_state_trace_vector=x_states,
+                   include_start_states=true,
+                   file=out_fp+"ase.tre",
+                   summary_statistic="MAP",
+                   reconstruction="marginal",
+                   burnin=f_burn,
+                   nStates=3,
+                   site=1)
+writeNexus(state_tree,filename=out_fp+"ase.tre")
