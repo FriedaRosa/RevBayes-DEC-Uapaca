@@ -99,9 +99,10 @@ read.tree(
   root(outgroup = "Spondianthus_preussii", resolve.root = TRUE) %>%
   plot()
 dev.off()
+  
 ```
 
-![](figures/plastome.png){width="681"}
+![plastome tree](figures/plastome.png){width="681"}
 
 ### 3. Biogeographic data
 

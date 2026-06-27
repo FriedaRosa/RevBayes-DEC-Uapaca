@@ -170,7 +170,7 @@ intriguing clade in Madagascar with increased resolution and certainty.
   - `uapaca_start_ultrametric_plastome.tre` is the plastome-equivalent
     of the ultrametric nuclear tree from before.
 
-<img src="figures/plastome.png" width="681" />
+<img src="figures/plastome.png" width="681" alt="plastome tree" />
 
 ### 3. Biogeographic data
 
