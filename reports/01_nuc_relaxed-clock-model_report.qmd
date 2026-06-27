@@ -46,6 +46,7 @@ source(fp+"5_MCMC-estimate_topology_branchtimes.Rev")
 #| fig.height: 10
 #| fig.width: 8
 library(ape)
+library(here)
 library(phytools)
 library(dplyr)
 library(phangorn)
@@ -98,7 +99,8 @@ tree_mcc <-
   )[[6]] %>%
   root.phylo(outgroup = "Spondianthus_preussii") %>%
   ladderize()
-
+png(here("figures/UCLN_final_nuc_timetree.png"))
 plot(tree_mcc)
 axisPhylo()
+dev.off()
 ```

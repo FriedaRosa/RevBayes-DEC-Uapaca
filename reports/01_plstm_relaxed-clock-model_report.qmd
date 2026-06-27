@@ -88,6 +88,12 @@ write.tree(
   mcc,
   file = "data/output/clock_model_plstm/plstm_global.phangorn-mcc.tre"
 )
+
+
+png(here("figures/glob_clock_plstm_timetree.png"))
+plot(mcc)
+axisPhylo()
+dev.off()
 ```
 
 RevBayes MCC tree
@@ -102,4 +108,6 @@ tree_mcc <- tree_mcc[[6]] %>%
 
 plot(tree_mcc)
 axisPhylo()
+
+
 ```

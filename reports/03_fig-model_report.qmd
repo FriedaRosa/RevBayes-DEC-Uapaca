@@ -722,7 +722,7 @@ pie <- plotAncStatesPie(
   # Add text labels to the tip pie symbols
   tip_labels_states = TRUE,
   # Offset those text labels slightly
-  tip_labels_states_offset = .4,
+  tip_labels_states_offset = 1.4,
   # Pass in your named and ordered color vector
   pie_colors = colors,
   # Offset the tip labels to make room for tip pies
@@ -741,6 +741,15 @@ pie <- plotAncStatesPie(
   theme(legend.position.inside = c(0.95, 0.7))
 
 #pdf(plot_anc_pie_fn, height = 9, width = 12)
+
 print(pie)
 #dev.off()
+
+plot_anc_pie_fn2 <- paste0(
+  here::here("figures//"),
+  "timefig_plot_states_prob.png"
+)
+png(plot_anc_pie_fn2, width = 800, height = 600, res = 200)
+print(pie)
+dev.off()
 ```
