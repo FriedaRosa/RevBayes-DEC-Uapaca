@@ -1,0 +1,619 @@
+---
+title: "Untitled"
+format: html
+---
+
+
+## I. Set up and initialize the RevBayes environment
+
+```{r}
+#install.packages("remotes")
+#install.packages("usethis")
+#remotes::install_github("revbayes/Revticulate")
+
+library(Revticulate)
+knitRev()
+#usethis::edit_r_environ()
+```
+
+```{r}
+# create content folder
+dir.create("content", showWarnings = FALSE)
+```
+
+Download RevBayes v1.3.2 for Linux directly from the GitHub releases page, and extract it to the /content folder.
+```{r}
+url <- "https://github.com/revbayes/revbayes/releases/download/v1.3.2/revbayes-v1.3.2-linux64.tar.gz"
+dest <- "content/RevBayes_Linux.tgz"
+
+# 2. Download directly to the /content folder
+download.file(url, destfile = dest, method = "libcurl")
+
+# 3. Extract it using R's internal tar tool
+utils::untar(dest, exdir = "content/")
+```
+
+Start RevBayes in the terminal by starting the rb executable from the extracted folder.
+
+```{bash}
+cd /content/revbayes-v1.3.2/bin
+./rb
+```
+
+## II. Set up the data
+
+
+```{r}
+packages_to_load <- c("here", "ape", "dplyr")
+
+lapply(packages_to_load, function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+})
+```
+
+
+```{r}
+library(ape)
+
+tr <- read.tree(here(
+  "content/data/input/phylogenetic_tree/wASTRAL_HybSuite_HRS.rr.tre"
+))
+
+is.rooted(tr)
+is.binary.tree(tr)
+is.ultrametric(tr)
+
+summary(tr$edge.length)
+tr$edge.length[tr$edge.length <= 1e-10]
+
+
+# create ultrametic starting tree:
+tr <- multi2di(tr)
+tr$edge.length[is.na(tr$edge.length) | tr$edge.length <= 0] <- 1e-6
+
+tr_ultra <- chronos(tr)
+tr_ultra <- compute.brlen(tr_ultra, method = "Grafen")
+
+write.tree(tr_ultra, here(
+  "content/data/input/phylogenetic_tree/uapaca_start_ultrametric.tre"))
+```
+
+## convert alignment fastas into nexus format for RevBayes
+
+The alignment fastas were copied from the original HybSuite folder in my Linux subsystem into the data/molecular_data folder. I chose the 10 genes with the most taxa represented in the alignment. 
+
+For reference (only), here is the script I used to copy files from Linux to Windows.
+
+```{bash, include=FALSE}
+#!/bin/bash
+
+target_mol='/mnt/c/Users/frwo0304/Documents/GitHub/RevBayes-DEC-Uapaca/content/data/input/molecular_data'
+
+source_mol='/home/frieda/HybSeq_pipeline_2026/data/output/06-Final_alignments/HRS'
+
+mkdir -p $target_mol
+
+cp \
+"$source_mol/6295.aln.trimmed.fasta" \
+"$source_mol/7029.aln.trimmed.fasta" \
+"$source_mol/5594.aln.trimmed.fasta" \
+"$source_mol/5620.aln.trimmed.fasta" \
+"$source_mol/5922.aln.trimmed.fasta" \
+"$source_mol/6016.aln.trimmed.fasta" \
+"$source_mol/6620.aln.trimmed.fasta" \
+"$source_mol/4527.aln.trimmed.fasta" \
+"$source_mol/5454.aln.trimmed.fasta" \
+"$target_mol/"
+
+
+ls -1 "$target_mol"
+
+
+target_tre='/mnt/c/Users/frwo0304/Documents/GitHub/RevBayes-DEC-Uapaca/content/data/input/phylogenetic_tree'
+source_tre='/home/frieda/HybSeq_pipeline_2026/data/output/08-Coalescent_analysis/HRS/03-Species_tree/wASTRAL/wASTRAL_HybSuite_HRS.rr.tre'
+mkdir -p $target_tre
+
+cp \
+"$source_tre" \
+"$target_tre/"
+ls -1 "$target_tre"
+```
+
+
+Reformat the alignments to have the right nexus format:
+
+```{r}
+library(ape)
+
+fasta_files <- list.files(
+  "content/data/input/molecular_data",
+  pattern = "\\.fasta$",
+  full.names = TRUE
+)
+out_files <- sub("\\.fasta$", ".nex", fasta_files)
+
+for (i in seq_along(fasta_files)) {
+  fasta_file <- fasta_files[i]
+  out_file <- out_files[i]
+
+  aln <- read.dna(fasta_file, format = "fasta", as.character = TRUE)
+
+  ntax <- nrow(aln)
+  nchar <- ncol(aln)
+
+  taxa <- rownames(aln)
+  seqs <- apply(aln, 1, paste0, collapse = "")
+
+  name_width <- max(nchar(taxa)) + 12
+
+  con <- file(out_file, open = "w")
+
+  writeLines("#NEXUS", con)
+  writeLines("begin data;", con)
+  writeLines(paste0("dimensions ntax=", ntax, " nchar=", nchar, ";"), con)
+  writeLines("format datatype=dna missing=? gap=-;", con)
+  writeLines("matrix", con)
+
+  for (i in seq_along(taxa)) {
+    line <- paste0(
+      format(taxa[i], width = name_width, justify = "left"),
+      tolower(seqs[i])
+    )
+    writeLines(line, con)
+  }
+
+  writeLines(";", con)
+  writeLines("end;", con)
+
+  close(con)
+}
+```
+
+
+```{bash}
+# rename the files
+i=1
+
+for f in *.nex; do
+    mv "$f" "uapaca_gene_${i}.nex"
+    ((i++))
+done
+```
+
+### set up filepaths for RevBayes analysis
+```{rb}
+library(Revticulate)
+knitRev()
+clearRev()
+```
+
+
+```{rb}
+# run this in RevBayes terminal:
+
+# set up filepath variables
+analysis = "divtime"
+dat_fp = "content/data/input/"
+phy_fn = dat_fp + "phylogenetic_tree/uapaca_start_ultrametric.tre"
+out_fn = "content/data/output/" + analysis
+
+```
+
+### configure MCMC variables 
+
+```{rb}
+# number of MCMC iterations
+num_gen = 500         # set to 5000 for full analysis
+
+# number of iterations between MCMC samples
+print_gen = 20
+
+# empty vector for MCMC moves
+moves = VectorMoves()
+
+# empty vector for MCMC monitors
+monitors = VectorMonitors()
+```
+
+### read in the tree
+
+```{rb}
+# read a phylogeny
+phy <- readTrees(phy_fn)[1]
+
+# get its taxon set
+taxa = phy.taxa()
+
+# get the number of taxa
+num_taxa = taxa.size()
+
+# get the number of branches for a rooted tree
+num_branches = 2 * num_taxa - 2
+```
+
+### read in the molecular data
+1. create vector of molecular alignment matrices
+2. for each locus...
+3. set alignment file name
+4. read the alignment
+5. record the alignment length
+
+```{rb}
+num_loci = 9
+
+for (i in 1:num_loci) {
+    mol_fn[i] = dat_fp + "molecular_data/uapaca_gene_" + i + ".nex"
+    dat_mol[i] = readDiscreteCharacterData(mol_fn[i])
+    num_sites[i] = dat_mol[i].nchar()
+}
+```
+
+There is no perfect coverage for all taxa across all loci. We need to add missing sequence data for each taxon present in the tree but absent for a locus.
+
+```{rb}
+# collect the taxon names as strings
+for (i in 1:num_taxa) {
+    taxa_names[i] = taxa[i].getName()
+}
+
+# visit each locus
+for (i in 1:num_loci) {
+
+    # hide all taxa for this locus
+
+
+    dat_mol[i].excludeTaxa( dat_mol[i].taxa() )
+
+    # unhide all taxa from the phylogeny in this locus 
+    
+    
+    dat_mol[i].includeTaxa( taxa_names )
+    
+    # insert ???? chars for taxa in phylogeny but not this locus
+    
+    
+    dat_mol[i].addMissingTaxa( taxa_names )
+}
+```
+
+### Birth-Death Process
+
+
+```{rb}
+# net diversification rate (birth - death)
+diversification ~ dnExp(5)
+
+# turnover proportion (death / birth)
+turnover ~ dnBeta(2,2)
+
+# convert into birth and death rates
+birth := diversification / abs(1.0 - turnover)
+death := birth * turnover
+
+# moves to update rates
+moves.append( mvScale(diversification, weight=3) )
+moves.append( mvScale(turnover, weight=3) )
+```
+
+### Set sampling fraction
+There are 25 species in total in the clade (+1 for Spondianthus) We only have 21/26 species in our tree. Our sampling fraction is 0.81
+
+```{rb}
+# proportion of sampled taxa
+sample_prop <- taxa.size() / 26
+```
+
+
+### Root age Prior
+We don't know how old the clade is. We assume it's younger than 80 Ma.
+
+
+```{rb}
+# wide ignorance prior on root age
+root_age ~ dnUniform(5.0, 66.0)
+root_age.setValue(30.0)
+
+# move to update root_age
+moves.append( mvScale(root_age, weight=15) )
+```
+
+### Initiate constant birth-death process
+
+```{rb}
+# constant rate birth-death process
+timetree ~ dnBDP(lambda=birth,
+                 mu=death,
+                 rho=sample_prop,
+                 rootAge=root_age,
+                 samplingStrategy="uniform",
+                 condition="time",
+                 taxa=taxa)
+
+# move to update internal node ages (move for root age is above)
+moves.append( mvNodeTimeSlideUniform(timetree, weight=2*num_taxa) )
+
+
+# initialize value of timetree with constant topology given the phylogeny.
+timetree.setValue(phy)
+```
+
+### Set up clades to monitor crown ages during MCMC
+
+
+```{rb}
+taxa_mada1 = v(
+    "U_thouarsii",
+    "U_densifolia",
+    "U_louvelii",
+    "U_bojeri_1",
+    "U_ferruginea",
+    "U_littoralis"
+    )
+
+taxa_bojeri = v(
+    "U_bojeri_1",
+    "U_louvelii",
+    "U_densifolia",
+    "U_thouarsii"
+    )
+
+taxa_afr1 = v(
+    "U_lissopyrena",
+    "U_mole",
+    "U_guineensis",
+    "U_pilosa", 
+    "U_kirkiana",
+    "U_sansibarica",
+    "U_robynsii",
+    "U_vanhouttei",
+    "U_pilosa_var_petiolata",
+    "U_togoensis"
+)
+
+taxa_afr2 = v(
+    "U_heudelotii",
+    "U_nitida",
+    "U_acuminata"
+)
+
+taxa_outgroup = v(
+    "Spondianthus_preussii", 
+    "U_amplifolia"
+    )
+
+taxa_afr1_mada1 = taxa_afr1
+taxa_afr1_mada1.append(taxa_mada1)
+
+k = 1
+for (i in 1:taxa.size()) {
+    if (taxa_outgroup.contains(taxa[i].getSpeciesName()) == false) {
+        taxa_ingroup[k++] = taxa[i]
+    }
+}
+
+
+clade_ingroup = clade(taxa_ingroup)
+clade_mada1 = clade(taxa_mada1)
+clade_bojeri = clade(taxa_bojeri)
+clade_afr1 = clade(taxa_afr1)
+clade_afr2 = clade(taxa_afr2)
+clade_afr1_mada1 = clade(taxa_afr1_mada1)
+
+
+```
+
+
+Now create variables for the monitors to measure divergence times.
+
+
+```{rb}
+age_ingroup := tmrca(timetree, clade_ingroup)
+age_mada1 := tmrca(timetree, clade_mada1)
+age_bojeri := tmrca(timetree, clade_bojeri)
+age_afr1 := tmrca(timetree, clade_afr1)
+age_afr2 := tmrca(timetree, clade_afr2)
+age_afr1_mada1 := tmrca(timetree, clade_afr1_mada1)
+
+diff_age_root_ingroup := root_age - age_ingroup
+
+```
+
+
+### Multilocus substitution model
+
+
+```{rb}
+# base molecular clock rate
+
+mu_mol_base ~ dnExp(10)
+
+
+# move to base molecular clock rate
+moves.append( mvScale(mu_mol_base, weight=5) )
+```
+
+Now draw branch rates whose mean equals the base clock rate and 95% of possible branchwise rate variation spans one order of magnitude (determined by the magic number 0.587405)
+
+
+```{rb}
+# lognormal standard deviation for relaxed molecular clock
+mu_mol_sd <- 0.587405
+
+
+### or estimate from the data (increases computational time):
+# replace with a random variable
+# mu_mol_sd ~ dnExp(1)
+
+# move to update variable
+# moves.append( mvScale(mu_mol_sd, weight=5) )
+
+
+
+# lognormal mean for relaxed molecular clock, designed to
+# have an expected value equal to mu_mol_base
+ln_mean := ln(mu_mol_base) - 0.5 * mu_mol_sd * mu_mol_sd
+
+# visit each branch in the tree
+for (i in 1:num_branches) {
+    # molecular clock rate for this branch
+    mu_mol_branch[i] ~ dnLnorm(ln_mean, mu_mol_sd)
+    # move to update this branch's clock rate
+    moves.append( mvScale(mu_mol_branch[i], weight=1) )
+}
+```
+
+In a partitioned analysis, each locus has its own evolutionary rates. We will assign each locus its own rate scaling factor, rate matrix, and site-rate variation parameters. Read through this tutorial (LINK) to learn more about the design of partitioned analyses.
+
+To model among-locus rate variation, the substitution process multiplies the relaxed clock branch rate vector (mu_mol_branch) by a per-locus relative rate factor. This allows each locus to experience a different substitution rate, while also allowing all loci to share the same set of branchwise relaxed clock rates. We fix the relative rate factor for the first locus to the value 1. All remaining loci have relative rate factors drawn from a lognormal distribution with an expected value of 1 – i.e. they may be slower or faster than the first locus. Taking the product mu_mol_locus_rel[i] * mu_mol_branch gives us a new vector of per-locus branch rates that are rescaled by the relative rate factor, and stored into mu_mol[i]. We use this vector of relaxed branch-by-locus clock rates later when constructing the substitution model.
+
+
+
+Steps:
+1. for each locus...
+2. first locus provides the base relative rate of 1.0
+3. assign random relative rates to all remaining loci
+4. relative rates have a mean of 1, so lognormal mean is -0.5 * sd^2
+5. add move to update per-locus relative rate
+6. construct rescaled branch rates for this locus by multiplying the per-locus relative rate by the per-branch relaxed clock rates
+
+```{rb}
+# visit each locus
+for (i in 1:num_loci) {
+    
+    mu_mol_locus_rel[i] <- 1.0
+    
+    if (i > 1) {
+    
+        mu_mol_locus_rel[i] ~ dnLognormal(-1/2, 1)
+        
+        moves.append(mvScale(mu_mol_locus_rel[i], weight=3))
+    }
+    
+    mu_mol[i] := mu_mol_locus_rel[i] * mu_mol_branch
+}
+```
+
+
+Next, we specify the HKY rate matrix, Q_mol to define transition rates among nucleotides. The HKY rate matrix uses the kappa parameter to control relative rates of transitions (e.g. purine to purine, pyrimadine to pyrimadine) and transversions (purine to pyrimadine, pyrimadine to purine). The pi_mol parameter controls the stationary frequencies across nucleotides for the model. The prior mean on kappa is 1 and the prior mean on pi_mol is a flat Dirichlet distribution. Read more about the HKY matrix here (missing reference).
+
+
+```{rb}
+# visit each locus
+for (i in 1:num_loci) {
+
+    kappa_mol[i] ~ dnLognormal(-1/2, 1)
+    
+
+    pi_mol[i] ~ dnDirichlet( [1,1,1,1] )
+    
+    Q_mol[i] := fnHKY(kappa=kappa_mol[i], baseFrequencies=pi_mol[i])
+    
+    moves.append(mvSimplex(pi_mol[i], alpha=3, offset=0.5, weight=3))
+    moves.append(mvScale(kappa_mol[i], weight=3))
+    
+}
+```
+
+Molecular rates variation among sites follow a Gamma distribution, approximated with four discrete rate classes. When alpha is large, all classes have relative rate factors of 1. When alpha is small, most rate classes are near 0 and one rate class is far greater than 1. Read more about the +Gamma among site rate variation model here (missing reference).
+
+
+```{rb}
+# visit each locus
+for (i in 1:num_loci) {
+
+    alpha_mol[i] ~ dnExp(0.1)
+    
+    site_rates_mol[i] := fnDiscretizeGamma(shape=alpha_mol[i],
+                                           rate=alpha_mol[i],
+                                           numCats=4)
+                                       
+    moves.append(mvScale(alpha_mol[i], weight=3))
+    
+}
+```
+
+
+### Define the partitioned molecular substitution model
+
+```{rb}
+# visit each locus
+for (i in 1:num_loci) {
+
+    x_mol[i] ~ dnPhyloCTMC(
+        Q=Q_mol[i],
+        tree=timetree,
+        branchRates=mu_mol[i],
+        siteRates=site_rates_mol[i],
+        rootFrequencies=pi_mol[i],
+        nSites=num_sites[i],
+        type="DNA" )
+}
+
+
+
+```
+
+Now clamp the observed molecular data to it
+
+
+```{rb}
+for (i in 1:num_loci) {
+
+    x_mol[i].clamp(dat_mol[i])
+
+}
+```
+
+
+### Set up MCMC
+
+```{rb}
+
+up_down_scale_tree = mvUpDownScale(lambda=1.0, weight=20)
+up_down_scale_tree.addVariable(timetree,       up=true)
+up_down_scale_tree.addVariable(root_age,       up=true)
+up_down_scale_tree.addVariable(mu_mol_branch,  up=false)
+up_down_scale_tree.addVariable(mu_mol_base,    up=false)
+moves.append(up_down_scale_tree)
+
+up_down_mol_rate = mvUpDownScale(lambda=1.0, weight=20)
+up_down_mol_rate.addVariable(mu_mol_branch,  up=true)
+up_down_mol_rate.addVariable(mu_mol_base,    up=true)
+moves.append(up_down_mol_rate)
+
+rate_age_proposal = mvRateAgeProposal(timetree, weight=20, alpha=5)
+rate_age_proposal.addRates(mu_mol_branch)
+moves.append(rate_age_proposal)
+```
+
+
+### set up Monitors
+
+
+```{rb}
+# screen monitor, so you don't get bored
+monitors.append( mnScreen(root_age, printgen=print_gen) )
+
+# file monitor for all simple model variables
+monitors.append( mnModel(printgen=print_gen, file=out_fn+".model.txt") )
+
+# file monitor for tree
+monitors.append( mnFile(timetree, printgen=print_gen, file=out_fn + ".tre") )
+```
+
+
+### Create model and run MCMC
+
+```{rb}
+# create model object
+mymodel = model(timetree)
+
+# create MCMC object
+mymcmc = mcmc(mymodel, moves, monitors)
+
+# run MCMC
+mymcmc.run(num_gen)
+```

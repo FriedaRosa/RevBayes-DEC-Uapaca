@@ -680,9 +680,9 @@ mcc_tree <- readTrees(paths = mcc_fn)
 set.seed(1)
 colors <-
   c(
-    "#00FF00",
-    "#FF0000",
-    "#0000FF"
+    "#E3C394",
+    "#0A523D",
+    "#9E470D"
   )
 names(colors) <- labs
 # set.seed(1); colors = sample(colors)
@@ -726,7 +726,7 @@ pie <- plotAncStatesPie(
   # Pass in your named and ordered color vector
   pie_colors = colors,
   # Offset the tip labels to make room for tip pies
-  tip_labels_offset = .7,
+  tip_labels_offset = 2.7,
   # Move tip pies right slightly
   tip_pie_nudge_x = .1,
   # Change the size of node and tip pies
@@ -749,7 +749,7 @@ plot_anc_pie_fn2 <- paste0(
   here::here("figures//"),
   "timefig_plot_states_prob.png"
 )
-png(plot_anc_pie_fn2, width = 800, height = 600, res = 200)
+png(plot_anc_pie_fn2, width = 1200, height = 1500, res = 200)
 print(pie)
 dev.off()
 ```
